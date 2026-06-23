@@ -1,27 +1,29 @@
 import { Router } from 'express';
-import pool from '../db/index';
+import { Discussion } from '../models/Discussion';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import mongoose from 'mongoose';
 
 const router = Router();
 
 router.get('/', authenticate, async (req: AuthRequest, res) => {
   try {
-    const { tag } = req.query;
-    let query = `
-      SELECT d.*, u.name as author_name, u.avatar_url as author_avatar, u.specialization as author_specialization,
-        EXISTS(SELECT 1 FROM discussion_likes dl WHERE dl.discussion_id = d.id AND dl.user_id = $1) as is_liked,
-        EXISTS(SELECT 1 FROM discussion_saves ds WHERE ds.discussion_id = d.id AND ds.user_id = $1) as is_saved
-      FROM discussions d
-      LEFT JOIN users u ON d.author_id = u.id
-    `;
-    const params: any[] = [req.user!.id];
-    if (tag) {
-      query += ` WHERE $2 = ANY(d.tags)`;
-      params.push(tag);
-    }
-    query += ' ORDER BY d.is_pinned DESC, d.created_at DESC';
-    const result = await pool.query(query, params);
-    res.json(result.rows);
+    const filter: any = {};
+    if (req.query.tag) filter.tags = req.query.tag;
+    const discussions = await Discussion.find(filter)
+      .populate('authorId', 'name avatarUrl specialization')
+      .sort({ isPinned: -1, createdAt: -1 });
+
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    const result = discussions.map(d => ({
+      ...d.toObject(),
+      author_name: (d.authorId as any)?.name,
+      author_avatar: (d.authorId as any)?.avatarUrl,
+      author_specialization: (d.authorId as any)?.specialization,
+      is_liked: d.likes.some(l => l.equals(userId)),
+      is_saved: d.saves.some(s => s.equals(userId)),
+      comments_count: d.comments.length,
+    }));
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -30,24 +32,25 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 
 router.get('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
-    const discussion = await pool.query(`
-      SELECT d.*, u.name as author_name, u.avatar_url as author_avatar, u.specialization as author_specialization,
-        EXISTS(SELECT 1 FROM discussion_likes dl WHERE dl.discussion_id = d.id AND dl.user_id = $2) as is_liked,
-        EXISTS(SELECT 1 FROM discussion_saves ds WHERE ds.discussion_id = d.id AND ds.user_id = $2) as is_saved
-      FROM discussions d
-      LEFT JOIN users u ON d.author_id = u.id
-      WHERE d.id = $1
-    `, [req.params.id, req.user!.id]);
+    const discussion = await Discussion.findById(req.params.id)
+      .populate('authorId', 'name avatarUrl specialization')
+      .populate('comments.authorId', 'name avatarUrl');
+    if (!discussion) return res.status(404).json({ error: 'Discussion not found' });
 
-    if (!discussion.rows[0]) return res.status(404).json({ error: 'Discussion not found' });
-
-    const comments = await pool.query(`
-      SELECT c.*, u.name as author_name, u.avatar_url as author_avatar
-      FROM comments c LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.discussion_id = $1 ORDER BY c.created_at ASC
-    `, [req.params.id]);
-
-    res.json({ ...discussion.rows[0], comments: comments.rows });
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    res.json({
+      ...discussion.toObject(),
+      author_name: (discussion.authorId as any)?.name,
+      author_avatar: (discussion.authorId as any)?.avatarUrl,
+      author_specialization: (discussion.authorId as any)?.specialization,
+      is_liked: discussion.likes.some(l => l.equals(userId)),
+      is_saved: discussion.saves.some(s => s.equals(userId)),
+      comments: discussion.comments.map(c => ({
+        ...c.toObject(),
+        author_name: (c.authorId as any)?.name,
+        author_avatar: (c.authorId as any)?.avatarUrl,
+      })),
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -58,12 +61,8 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
   try {
     const { title, content, tags } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
-
-    const result = await pool.query(
-      `INSERT INTO discussions (title, content, tags, author_id) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, content, tags || [], req.user!.id]
-    );
-    res.status(201).json(result.rows[0]);
+    const discussion = await Discussion.create({ title, content, tags: tags || [], authorId: req.user!.id });
+    res.status(201).json(discussion);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -72,12 +71,12 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
 
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
-    const result = await pool.query('SELECT author_id FROM discussions WHERE id = $1', [req.params.id]);
-    if (!result.rows[0]) return res.status(404).json({ error: 'Not found' });
-    if (result.rows[0].author_id !== req.user!.id && !['admin', 'moderator'].includes(req.user!.role)) {
+    const discussion = await Discussion.findById(req.params.id);
+    if (!discussion) return res.status(404).json({ error: 'Not found' });
+    if (discussion.authorId.toString() !== req.user!.id && !['admin', 'moderator'].includes(req.user!.role)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    await pool.query('DELETE FROM discussions WHERE id = $1', [req.params.id]);
+    await discussion.deleteOne();
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -85,20 +84,22 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Like/unlike
 router.post('/:id/like', authenticate, async (req: AuthRequest, res) => {
   try {
-    const existing = await pool.query(
-      'SELECT id FROM discussion_likes WHERE discussion_id = $1 AND user_id = $2',
-      [req.params.id, req.user!.id]
-    );
-    if (existing.rows.length > 0) {
-      await pool.query('DELETE FROM discussion_likes WHERE discussion_id = $1 AND user_id = $2', [req.params.id, req.user!.id]);
-      await pool.query('UPDATE discussions SET likes_count = GREATEST(0, likes_count - 1) WHERE id = $1', [req.params.id]);
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    const discussion = await Discussion.findById(req.params.id);
+    if (!discussion) return res.status(404).json({ error: 'Not found' });
+
+    const idx = discussion.likes.findIndex(l => l.equals(userId));
+    if (idx >= 0) {
+      discussion.likes.splice(idx, 1);
+      discussion.likesCount = Math.max(0, discussion.likesCount - 1);
+      await discussion.save();
       res.json({ liked: false });
     } else {
-      await pool.query('INSERT INTO discussion_likes (discussion_id, user_id) VALUES ($1, $2)', [req.params.id, req.user!.id]);
-      await pool.query('UPDATE discussions SET likes_count = likes_count + 1 WHERE id = $1', [req.params.id]);
+      discussion.likes.push(userId);
+      discussion.likesCount += 1;
+      await discussion.save();
       res.json({ liked: true });
     }
   } catch (error) {
@@ -107,18 +108,20 @@ router.post('/:id/like', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Save/unsave
 router.post('/:id/save', authenticate, async (req: AuthRequest, res) => {
   try {
-    const existing = await pool.query(
-      'SELECT id FROM discussion_saves WHERE discussion_id = $1 AND user_id = $2',
-      [req.params.id, req.user!.id]
-    );
-    if (existing.rows.length > 0) {
-      await pool.query('DELETE FROM discussion_saves WHERE discussion_id = $1 AND user_id = $2', [req.params.id, req.user!.id]);
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    const discussion = await Discussion.findById(req.params.id);
+    if (!discussion) return res.status(404).json({ error: 'Not found' });
+
+    const idx = discussion.saves.findIndex(s => s.equals(userId));
+    if (idx >= 0) {
+      discussion.saves.splice(idx, 1);
+      await discussion.save();
       res.json({ saved: false });
     } else {
-      await pool.query('INSERT INTO discussion_saves (discussion_id, user_id) VALUES ($1, $2)', [req.params.id, req.user!.id]);
+      discussion.saves.push(userId);
+      await discussion.save();
       res.json({ saved: true });
     }
   } catch (error) {
@@ -127,18 +130,18 @@ router.post('/:id/save', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Add comment
 router.post('/:id/comments', authenticate, async (req: AuthRequest, res) => {
   try {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'Content required' });
 
-    const result = await pool.query(
-      'INSERT INTO comments (discussion_id, author_id, content) VALUES ($1, $2, $3) RETURNING *',
-      [req.params.id, req.user!.id, content]
-    );
-    await pool.query('UPDATE discussions SET comments_count = comments_count + 1 WHERE id = $1', [req.params.id]);
-    res.status(201).json(result.rows[0]);
+    const discussion = await Discussion.findById(req.params.id);
+    if (!discussion) return res.status(404).json({ error: 'Not found' });
+
+    const comment = { authorId: new mongoose.Types.ObjectId(req.user!.id), content } as any;
+    discussion.comments.push(comment);
+    await discussion.save();
+    res.status(201).json(discussion.comments[discussion.comments.length - 1]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
