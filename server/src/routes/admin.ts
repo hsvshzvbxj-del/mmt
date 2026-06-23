@@ -1,40 +1,34 @@
 import { Router } from 'express';
-import pool from '../db/index';
+import { User } from '../models/User';
+import { MembershipRequest } from '../models/MembershipRequest';
+import { Event } from '../models/Event';
+import { Opportunity } from '../models/Opportunity';
+import { Discussion } from '../models/Discussion';
+import { Article } from '../models/Article';
 import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
 
 router.get('/dashboard', authenticate, requireRole('admin', 'moderator'), async (_req, res) => {
   try {
-    const [totalMembers, newMembers, pendingApps, totalEvents, totalOpportunities, totalDiscussions, totalArticles] = await Promise.all([
-      pool.query("SELECT COUNT(*) FROM users WHERE status = 'active'"),
-      pool.query("SELECT COUNT(*) FROM users WHERE status = 'active' AND created_at > NOW() - INTERVAL '30 days'"),
-      pool.query("SELECT COUNT(*) FROM membership_requests WHERE status = 'pending'"),
-      pool.query('SELECT COUNT(*) FROM events'),
-      pool.query("SELECT COUNT(*) FROM opportunities WHERE status = 'active'"),
-      pool.query('SELECT COUNT(*) FROM discussions'),
-      pool.query("SELECT COUNT(*) FROM articles WHERE is_published = true"),
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const [totalMembers, newMembers, pendingApps, totalEvents, totalOpportunities, totalDiscussions, totalArticles, recentMembers, recentApplications] = await Promise.all([
+      User.countDocuments({ status: 'active' }),
+      User.countDocuments({ status: 'active', createdAt: { $gte: thirtyDaysAgo } }),
+      MembershipRequest.countDocuments({ status: 'pending' }),
+      Event.countDocuments(),
+      Opportunity.countDocuments({ status: 'active' }),
+      Discussion.countDocuments(),
+      Article.countDocuments({ isPublished: true }),
+      User.find({ status: 'active' }).select('name email city specialization createdAt').sort({ createdAt: -1 }).limit(5),
+      MembershipRequest.find().select('fullName email city specialization status createdAt').sort({ createdAt: -1 }).limit(5),
     ]);
 
-    const recentMembers = await pool.query(
-      `SELECT id, name, email, city, specialization, created_at FROM users WHERE status = 'active' ORDER BY created_at DESC LIMIT 5`
-    );
-    const recentApplications = await pool.query(
-      `SELECT id, full_name, email, city, specialization, status, created_at FROM membership_requests ORDER BY created_at DESC LIMIT 5`
-    );
-
     res.json({
-      stats: {
-        totalMembers: parseInt(totalMembers.rows[0].count),
-        newMembers: parseInt(newMembers.rows[0].count),
-        pendingApplications: parseInt(pendingApps.rows[0].count),
-        totalEvents: parseInt(totalEvents.rows[0].count),
-        totalOpportunities: parseInt(totalOpportunities.rows[0].count),
-        totalDiscussions: parseInt(totalDiscussions.rows[0].count),
-        totalArticles: parseInt(totalArticles.rows[0].count),
-      },
-      recentMembers: recentMembers.rows,
-      recentApplications: recentApplications.rows,
+      stats: { totalMembers, newMembers, pendingApplications: pendingApps, totalEvents, totalOpportunities, totalDiscussions, totalArticles },
+      recentMembers,
+      recentApplications,
     });
   } catch (error) {
     console.error(error);
