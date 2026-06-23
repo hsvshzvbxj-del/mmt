@@ -1,22 +1,23 @@
-FROM node:20-alpine AS client-builder
+FROM node:20-slim AS client-builder
 WORKDIR /app/client
 COPY client/package*.json ./
-RUN npm install
+RUN npm ci
 COPY client/ .
 RUN npm run build
 
-FROM node:20-alpine AS server-builder
+FROM node:20-slim AS server-builder
 WORKDIR /app/server
 COPY server/package*.json ./
-RUN npm install
+RUN npm ci
 COPY server/ .
 RUN npm run build
 
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 WORKDIR /app
 COPY --from=server-builder /app/server/dist ./dist
-COPY --from=server-builder /app/server/node_modules ./node_modules
 COPY --from=server-builder /app/server/package.json ./package.json
+COPY --from=server-builder /app/server/package-lock.json ./package-lock.json
+RUN npm ci --omit=dev
 COPY --from=client-builder /app/client/dist ./public
 
 ENV NODE_ENV=production
