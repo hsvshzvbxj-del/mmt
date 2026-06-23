@@ -1,0 +1,151 @@
+Read our docs for common ways to troubleshoot your deploy.
+
+All logs
+Search
+Search logs
+
+Live tail
+
+
+
+==> Cloning from https://github.com/hsvshzvbxj-del/mmt
+==> Checking out commit 6a97b14629eb88db4987b4f820d7331d7b246d32 in branch main
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 776B done
+#1 DONE 0.1s
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 ...
+#3 [auth] library/node:pull render-prod/docker-mirror-repository/library/node:pull token for us-west1-docker.pkg.dev
+#3 DONE 0.0s
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 DONE 0.7s
+#4 [internal] load .dockerignore
+#4 transferring context: 133B done
+#4 DONE 0.1s
+#5 [internal] load build context
+#5 DONE 0.0s
+#6 importing cache manifest
+#6 ERROR: failed to configure registry cache importer: image-registry-v2.aws-us-west-2-7.internal.render.com/srv-d8t5cvmq1p3s7390gutg:buildcache: not found
+#7 [client-builder 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.1s done
+#7 ...
+#5 [internal] load build context
+#5 transferring context: 2.12MB 0.0s done
+#5 DONE 0.6s
+#7 [client-builder 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.1s done
+#7 DONE 2.4s
+#7 [client-builder 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287
+#7 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 2.2s done
+#7 DONE 4.6s
+#7 [client-builder 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122
+#7 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122 1.4s done
+#7 DONE 6.0s
+#7 [client-builder 1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#7 extracting sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096
+#7 extracting sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 0.3s done
+#7 DONE 6.3s
+#8 [client-builder 2/7] WORKDIR /app/client
+#8 DONE 0.0s
+#9 [server-builder 2/7] WORKDIR /app/server
+#9 DONE 0.0s
+#10 [production 2/8] WORKDIR /app
+#10 DONE 0.0s
+#11 [production 3/8] RUN npm install -g npm@11
+#11 ...
+#12 [client-builder 3/7] RUN npm install -g npm@11
+#12 ...
+#13 [server-builder 3/7] RUN npm install -g npm@11
+#13 ...
+#11 [production 3/8] RUN npm install -g npm@11
+#11 22.37 
+#11 22.37 removed 65 packages, and changed 112 packages in 22s
+#11 22.37 
+#11 22.37 15 packages are looking for funding
+#11 22.37   run `npm fund` for details
+#11 ...
+#12 [client-builder 3/7] RUN npm install -g npm@11
+#12 22.37 
+#12 22.37 removed 65 packages, and changed 112 packages in 22s
+#12 22.37 
+#12 22.37 15 packages are looking for funding
+#12 22.37   run `npm fund` for details
+#12 DONE 24.6s
+#11 [production 3/8] RUN npm install -g npm@11
+#11 DONE 24.6s
+#13 [server-builder 3/7] RUN npm install -g npm@11
+#13 22.67 
+#13 22.67 removed 65 packages, and changed 112 packages in 22s
+#13 22.67 
+#13 22.67 15 packages are looking for funding
+#13 22.67   run `npm fund` for details
+#13 DONE 24.6s
+#14 [client-builder 4/7] COPY client/package*.json ./
+#14 DONE 0.1s
+#15 [server-builder 4/7] COPY server/package*.json ./
+#15 DONE 0.1s
+#16 [server-builder 5/7] RUN npm install
+#16 ...
+#17 [client-builder 5/7] RUN npm install
+#17 ...
+#16 [server-builder 5/7] RUN npm install
+#16 71.43 npm error code ENOTFOUND
+#16 71.43 npm error syscall getaddrinfo
+#16 71.43 npm error errno ENOTFOUND
+#16 71.43 npm error network request to http://package-firewall.replit.local/npm/xtend/-/xtend-4.0.2.tgz failed, reason: getaddrinfo ENOTFOUND package-firewall.replit.local
+#16 71.43 npm error network This is a problem related to network connectivity.
+#16 71.43 npm error network In most cases you are behind a proxy or have bad network settings.
+#16 71.43 npm error network
+#16 71.43 npm error network If you are behind a proxy, please make sure that the 'proxy' config is set properly.  See: 'npm help config'
+#16 71.44 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T14_01_02_471Z-debug-0.log
+#16 ERROR: process "/bin/sh -c npm install" did not complete successfully: exit code: 1
+#17 [client-builder 5/7] RUN npm install
+#17 71.80 npm error code ENOTFOUND
+#17 71.80 npm error syscall getaddrinfo
+#17 71.80 npm error errno ENOTFOUND
+#17 71.80 npm error network request to http://package-firewall.replit.local/npm/zustand/-/zustand-4.5.7.tgz failed, reason: getaddrinfo ENOTFOUND package-firewall.replit.local
+#17 71.80 npm error network This is a problem related to network connectivity.
+#17 71.80 npm error network In most cases you are behind a proxy or have bad network settings.
+#17 71.80 npm error network
+#17 71.80 npm error network If you are behind a proxy, please make sure that the 'proxy' config is set properly.  See: 'npm help config'
+#17 71.82 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T14_01_02_467Z-debug-0.log
+#17 ERROR: process "/bin/sh -c npm install" did not complete successfully: exit code: 1
+------
+ > importing cache manifest
+------
+------
+ > [client-builder 5/7] RUN npm install:
+71.80 npm error code ENOTFOUND
+71.80 npm error syscall getaddrinfo
+71.80 npm error errno ENOTFOUND
+71.80 npm error network request to http://package-firewall.replit.local/npm/zustand/-/zustand-4.5.7.tgz failed, reason: getaddrinfo ENOTFOUND package-firewall.replit.local
+71.80 npm error network This is a problem related to network connectivity.
+71.80 npm error network In most cases you are behind a proxy or have bad network settings.
+71.80 npm error network
+71.80 npm error network If you are behind a proxy, please make sure that the 'proxy' config is set properly.  See: 'npm help config'
+71.82 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T14_01_02_467Z-debug-0.log
+------
+------
+ > [server-builder 5/7] RUN npm install:
+71.43 npm error code ENOTFOUND
+71.43 npm error syscall getaddrinfo
+71.43 npm error errno ENOTFOUND
+71.43 npm error network request to http://package-firewall.replit.local/npm/xtend/-/xtend-4.0.2.tgz failed, reason: getaddrinfo ENOTFOUND package-firewall.replit.local
+71.43 npm error network This is a problem related to network connectivity.
+71.43 npm error network In most cases you are behind a proxy or have bad network settings.
+71.43 npm error network
+71.43 npm error network If you are behind a proxy, please make sure that the 'proxy' config is set properly.  See: 'npm help config'
+71.44 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T14_01_02_471Z-debug-0.log
+------
+Dockerfile:13
+--------------------
+  11 |     RUN npm install -g npm@11
+  12 |     COPY server/package*.json ./
+  13 | >>> RUN npm install
+  14 |     COPY server/ .
+  15 |     RUN npm run build
+--------------------
+error: failed to solve: process "/bin/sh -c npm install" did not complete successfully: exit code: 1
