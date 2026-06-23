@@ -17,7 +17,6 @@ WORKDIR /app
 COPY --from=server-builder /app/server/dist ./dist
 COPY --from=server-builder /app/server/node_modules ./node_modules
 COPY --from=server-builder /app/server/package.json ./package.json
-COPY --from=server-builder /app/server/src/db/schema.sql ./dist/db/schema.sql
 COPY --from=client-builder /app/client/dist ./public
 
 ENV NODE_ENV=production
