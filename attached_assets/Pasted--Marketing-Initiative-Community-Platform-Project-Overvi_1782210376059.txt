@@ -1,0 +1,524 @@
+# Marketing Initiative Community Platform
+
+## Project Overview
+
+The Marketing Initiative Community Platform is a comprehensive digital platform designed to manage and grow the "Marketing Initiative Community." The platform aims to bring together marketing leaders, specialists, consultants, entrepreneurs, and business owners in a professional environment that fosters knowledge sharing, networking, collaboration, and business opportunities.
+
+---
+
+# Technology Stack
+
+## Frontend
+
+* Next.js 15
+* TypeScript
+* Tailwind CSS
+* Shadcn UI
+* React Query
+* Zustand
+
+## Backend
+
+* Node.js
+* NestJS or Express.js
+* TypeScript
+
+## Database
+
+* MongoDB
+
+## Authentication
+
+* JWT Authentication
+* Google Login
+* LinkedIn Login
+
+## File Storage
+
+* AWS S3 or Cloudflare R2
+
+## Notifications
+
+* Email Notifications
+* Firebase Push Notifications
+
+---
+
+# User Roles
+
+## 1. Visitor
+
+Permissions:
+
+* Browse the homepage
+* View community goals and vision
+* View upcoming events
+* Submit a membership application
+
+## 2. Member
+
+Permissions:
+
+* Edit profile
+* Create discussions
+* Comment on posts
+* Like content
+* Search members
+* View opportunities
+* View events
+* Register for events
+
+## 3. Moderator
+
+Permissions:
+
+* Review membership applications
+* Manage content
+* Manage members
+* Delete inappropriate posts
+* Approve advertisements and opportunities
+* Manage events
+
+## 4. Administrator
+
+Full system access and permissions.
+
+---
+
+# Website Pages
+
+## Homepage
+
+### Hero Section
+
+* Community introduction
+* Vision
+* Mission
+* Join Community CTA
+
+### Statistics Section
+
+* Total Members
+* Total Events
+* Total Opportunities
+* Total Articles
+
+### Community Pillars
+
+#### Knowledge
+
+* Webinars
+* Articles
+* Resources
+
+#### Networking
+
+* Professional Connections
+* Collaboration Opportunities
+
+#### Opportunities
+
+* Jobs
+* Consulting Opportunities
+* Projects
+
+---
+
+## About Us Page
+
+Includes:
+
+* Vision
+* Mission
+* Community Objectives
+* Community Policies
+
+---
+
+## Members Directory
+
+Search and filter members by:
+
+* Name
+* City
+* Experience
+* Industry
+* Specialization
+
+---
+
+## Events Page
+
+Features:
+
+* Upcoming Events
+* Past Events
+* Event Registration
+* Add Event to Calendar
+
+---
+
+## Opportunities Page
+
+Opportunity Types:
+
+* Jobs
+* Projects
+* Consulting Opportunities
+* Partnerships
+
+---
+
+## Knowledge Hub
+
+Includes:
+
+* Articles
+* PDF Resources
+* Videos
+* Event Recordings
+
+---
+
+## Discussions Page
+
+Community-style discussion forum.
+
+Members can:
+
+* Create Topics
+* Comment
+* Like Posts
+* Save Discussions
+
+---
+
+## Contact Us Page
+
+* Contact Form
+* Social Media Links
+
+---
+
+# Membership System
+
+## Membership Application Form
+
+Fields:
+
+* Full Name
+* Email Address
+* Mobile Number
+* City
+* Specialization
+* Company / Organization
+* Years of Experience
+* Industry
+* Expected Contribution to the Community
+* Referral Source
+* LinkedIn Profile
+* Agreement and Consent
+
+---
+
+# Membership Approval Workflow
+
+### Step 1
+
+User submits application.
+
+### Step 2
+
+Application appears in Admin Panel.
+
+Status Options:
+
+* Pending
+* Approved
+* Rejected
+
+### Step 3
+
+Upon Approval:
+
+* Create Member Account Automatically
+* Send Welcome Email
+* Send Login Credentials
+
+---
+
+# Member Profile
+
+Profile Includes:
+
+* Profile Picture
+* Full Name
+* City
+* Specialization
+* Company
+* Years of Experience
+* Industry
+* Bio
+* LinkedIn Profile
+* Personal Website
+* Skills
+
+---
+
+# Events Management
+
+### Moderator Capabilities
+
+* Create Event
+* Set Date and Time
+* Set Location
+* Define Capacity
+* Add Zoom Link
+
+### Member Capabilities
+
+* Register for Event
+* Cancel Registration
+* Receive Event Reminders
+
+---
+
+# Opportunities Management
+
+Opportunity Types:
+
+* Job
+* Project
+* Consulting
+* Partnership
+
+Fields:
+
+* Title
+* Description
+* Company
+* Opportunity Type
+* Expiration Date
+
+---
+
+# Discussion System
+
+## Create Discussion
+
+Fields:
+
+* Title
+* Content
+* Tags
+
+## Interactions
+
+* Like
+* Comment
+* Share
+* Save
+
+---
+
+# Admin Dashboard
+
+## Dashboard Statistics
+
+* Total Members
+* New Members
+* Total Events
+* Total Opportunities
+* Total Discussions
+
+---
+
+## Member Management
+
+* View Members
+* Edit Member
+* Delete Member
+* Suspend Member
+
+---
+
+## Membership Applications Management
+
+* Approve
+* Reject
+* Add Notes
+
+---
+
+## Events Management
+
+* Create
+* Edit
+* Delete
+
+---
+
+## Opportunities Management
+
+* Create
+* Edit
+* Delete
+
+---
+
+## Articles Management
+
+* Create
+* Edit
+* Delete
+
+---
+
+# MongoDB Collections
+
+## Users
+
+```json
+{
+  "_id": "",
+  "name": "",
+  "email": "",
+  "phone": "",
+  "city": "",
+  "specialization": "",
+  "experience": "",
+  "industry": "",
+  "company": "",
+  "linkedin": "",
+  "bio": "",
+  "role": "",
+  "status": "",
+  "createdAt": ""
+}
+```
+
+## MembershipRequests
+
+```json
+{
+  "_id": "",
+  "fullName": "",
+  "email": "",
+  "phone": "",
+  "city": "",
+  "specialization": "",
+  "company": "",
+  "experience": "",
+  "industry": "",
+  "contribution": "",
+  "source": "",
+  "linkedin": "",
+  "status": "",
+  "notes": "",
+  "createdAt": ""
+}
+```
+
+## Events
+
+```json
+{
+  "_id": "",
+  "title": "",
+  "description": "",
+  "location": "",
+  "date": "",
+  "seats": "",
+  "zoomLink": "",
+  "image": "",
+  "createdBy": ""
+}
+```
+
+## Opportunities
+
+```json
+{
+  "_id": "",
+  "title": "",
+  "description": "",
+  "company": "",
+  "type": "",
+  "deadline": "",
+  "status": ""
+}
+```
+
+## Discussions
+
+```json
+{
+  "_id": "",
+  "title": "",
+  "content": "",
+  "tags": [],
+  "authorId": "",
+  "likes": 0,
+  "commentsCount": 0,
+  "createdAt": ""
+}
+```
+
+## Comments
+
+```json
+{
+  "_id": "",
+  "discussionId": "",
+  "authorId": "",
+  "content": "",
+  "createdAt": ""
+}
+```
+
+## Articles
+
+```json
+{
+  "_id": "",
+  "title": "",
+  "content": "",
+  "coverImage": "",
+  "category": "",
+  "authorId": "",
+  "createdAt": ""
+}
+```
+
+---
+
+# Phase Two Features (Future Roadmap)
+
+## Mobile Application
+
+* Flutter
+
+## Private Messaging System
+
+* Member-to-Member Chat
+
+## AI Assistant
+
+* Marketing Assistant for Community Members
+
+## Marketplace
+
+* Consultants and Experts Services Directory
+
+## Gamification
+
+* Points System
+* Achievement Badges
+
+## AI Matching
+
+* Recommended Members Based on Interests and Expertise
+
+## Business Directory
+
+* Companies and Organizations Directory

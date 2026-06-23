@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 33% 97%; /* #f8f9fb */
+    --foreground: 215 55% 14%; /* #0f1f35 */
+    --card: 0 0% 100%;
+    --card-foreground: 215 55% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 55% 14%;
+    --primary: 217 49% 24%; /* #1e3a5f */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 344 52% 77%; /* #e8a5b8 */
+    --secondary-foreground: 217 49% 24%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 344 52% 77%;
+    --accent-foreground: 217 49% 24%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 49% 24%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 215 55% 10%;
+    --foreground: 210 40% 98%;
+    --card: 215 55% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 215 55% 14%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 49% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 344 52% 77%;
+    --secondary-foreground: 215 55% 14%;
+    --muted: 215 55% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 344 52% 77%;
+    --accent-foreground: 215 55% 14%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 55% 20%;
+    --input: 215 55% 20%;
+    --ring: 217 49% 34%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Tajawal', sans-serif;
+    @apply font-bold;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.85);
+  }
+  
+  .dark .glass {
+    background: rgba(15, 31, 53, 0.85);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
