@@ -64,11 +64,19 @@ export default function Footer() {
         
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} مجتمع مبادرة تسويقية. جميع الحقوق محفوظة.
+            &copy; {new Date().getFullYear()} مجتمع مبادرة تسويقية — <a href="https://mmt.online" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">mmt.online</a>. جميع الحقوق محفوظة.
           </p>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-6 text-sm text-gray-500">
             <Link href="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
+            <a
+              href="https://qiroxstudio.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-secondary transition-colors flex items-center gap-1"
+            >
+              صنعه بحب عبر <span className="text-secondary font-semibold">Qirox Studio</span> ❤️
+            </a>
           </div>
         </div>
       </div>
