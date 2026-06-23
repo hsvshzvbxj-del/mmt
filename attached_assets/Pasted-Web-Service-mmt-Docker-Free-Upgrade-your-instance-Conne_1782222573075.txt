@@ -1,0 +1,83 @@
+Web Service
+mmt
+Docker
+Free
+Upgrade your instance
+
+Connect
+
+Manual Deploy
+Service ID:
+srv-d8t5cvmq1p3s7390gutg
+
+hsvshzvbxj-del / mmt
+main
+mmt.qiroxstudio.online
+
+Your free instance will spin down with inactivity, which can delay requests by 50 seconds or more.
+Upgrade now
+June 23, 2026 at 4:34 PM
+failed
+ef8dfb9
+Use node:20-slim + npm ci for more reliable Docker builds on Render
+
+Rollback
+Exited with status 1 while building your code.
+Read our docs for common ways to troubleshoot your deploy.
+
+All logs
+Search
+Search logs
+
+Jun 23, 4:33 PM - 4:38 PM
+GMT+3
+
+
+
+#14 DONE 0.0s
+#13 [client-builder 4/6] RUN npm ci
+#13 70.98 npm notice
+#13 70.98 npm notice New major version of npm available! 10.8.2 -> 11.17.0
+#13 70.98 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+#13 70.98 npm notice To update run: npm install -g npm@11.17.0
+#13 70.98 npm notice
+#13 70.98 npm error Exit handler never called!
+#13 70.98 npm error This is an error with npm itself. Please report this error at:
+#13 70.98 npm error   <https://github.com/npm/cli/issues>
+#13 70.98 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T13_36_33_305Z-debug-0.log
+#13 DONE 71.0s
+#15 [client-builder 5/6] COPY client/ .
+#15 DONE 0.1s
+#16 [server-builder 6/6] RUN npm run build
+#16 0.184 
+#16 0.184 > mic-server@1.0.0 build
+#16 0.184 > tsc
+#16 0.184 
+#16 0.188 sh: 1: tsc: not found
+#16 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+#17 [client-builder 6/6] RUN npm run build
+#17 0.181 
+#17 0.181 > mic-client@1.0.0 build
+#17 0.181 > tsc && vite build
+#17 0.181 
+#17 0.184 sh: 1: tsc: not found
+#17 CANCELED
+------
+ > [server-builder 6/6] RUN npm run build:
+0.184 
+0.184 > mic-server@1.0.0 build
+0.184 > tsc
+0.184 
+0.188 sh: 1: tsc: not found
+------
+Dockerfile:13
+--------------------
+  11 |     RUN npm ci
+  12 |     COPY server/ .
+  13 | >>> RUN npm run build
+  14 |     
+  15 |     FROM node:20-slim AS production
+--------------------
+error: failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+error: exit status 1
+Need better ways to work with logs? Try theRender CLI, Render MCP Server, or set up a log stream integration 
