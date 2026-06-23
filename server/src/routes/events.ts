@@ -1,21 +1,19 @@
 import { Router } from 'express';
-import pool from '../db/index';
+import { Event } from '../models/Event';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import mongoose from 'mongoose';
 
 const router = Router();
 
 router.get('/', async (_req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT e.*, u.name as creator_name, 
-        COUNT(er.id) as registered_count
-      FROM events e
-      LEFT JOIN users u ON e.created_by = u.id
-      LEFT JOIN event_registrations er ON e.id = er.event_id
-      GROUP BY e.id, u.name
-      ORDER BY e.event_date ASC
-    `);
-    res.json(result.rows);
+    const events = await Event.find().populate('createdBy', 'name').sort({ eventDate: 1 });
+    const result = events.map(e => ({
+      ...e.toObject(),
+      registered_count: e.registrations.length,
+      creator_name: (e.createdBy as any)?.name,
+    }));
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -24,17 +22,9 @@ router.get('/', async (_req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT e.*, u.name as creator_name,
-        COUNT(er.id) as registered_count
-      FROM events e
-      LEFT JOIN users u ON e.created_by = u.id
-      LEFT JOIN event_registrations er ON e.id = er.event_id
-      WHERE e.id = $1
-      GROUP BY e.id, u.name
-    `, [req.params.id]);
-    if (!result.rows[0]) return res.status(404).json({ error: 'Event not found' });
-    res.json(result.rows[0]);
+    const event = await Event.findById(req.params.id).populate('createdBy', 'name');
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    res.json({ ...event.toObject(), registered_count: event.registrations.length, creator_name: (event.createdBy as any)?.name });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -44,12 +34,16 @@ router.get('/:id', async (req, res) => {
 router.post('/', authenticate, requireRole('admin', 'moderator'), async (req: AuthRequest, res) => {
   try {
     const { title, description, location, event_date, seats, zoom_link, image_url, is_online } = req.body;
-    const result = await pool.query(
-      `INSERT INTO events (title, description, location, event_date, seats, zoom_link, image_url, is_online, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [title, description, location, event_date, seats, zoom_link, image_url, is_online, req.user!.id]
-    );
-    res.status(201).json(result.rows[0]);
+    const event = await Event.create({
+      title, description, location,
+      eventDate: event_date,
+      seats: seats || 0,
+      zoomLink: zoom_link,
+      imageUrl: image_url,
+      isOnline: is_online || false,
+      createdBy: req.user!.id,
+    });
+    res.status(201).json(event);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -59,14 +53,15 @@ router.post('/', authenticate, requireRole('admin', 'moderator'), async (req: Au
 router.put('/:id', authenticate, requireRole('admin', 'moderator'), async (req, res) => {
   try {
     const { title, description, location, event_date, seats, zoom_link, image_url, is_online } = req.body;
-    const result = await pool.query(
-      `UPDATE events SET title=$1, description=$2, location=$3, event_date=$4, seats=$5, 
-       zoom_link=$6, image_url=$7, is_online=$8, updated_at=NOW()
-       WHERE id=$9 RETURNING *`,
-      [title, description, location, event_date, seats, zoom_link, image_url, is_online, req.params.id]
-    );
-    if (!result.rows[0]) return res.status(404).json({ error: 'Event not found' });
-    res.json(result.rows[0]);
+    const event = await Event.findByIdAndUpdate(req.params.id, {
+      title, description, location,
+      eventDate: event_date,
+      seats, zoomLink: zoom_link,
+      imageUrl: image_url,
+      isOnline: is_online,
+    }, { new: true });
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    res.json(event);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -75,7 +70,7 @@ router.put('/:id', authenticate, requireRole('admin', 'moderator'), async (req, 
 
 router.delete('/:id', authenticate, requireRole('admin', 'moderator'), async (req, res) => {
   try {
-    await pool.query('DELETE FROM events WHERE id = $1', [req.params.id]);
+    await Event.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -83,22 +78,20 @@ router.delete('/:id', authenticate, requireRole('admin', 'moderator'), async (re
   }
 });
 
-// Register for event
 router.post('/:id/register', authenticate, async (req: AuthRequest, res) => {
   try {
-    const eventResult = await pool.query('SELECT * FROM events WHERE id = $1', [req.params.id]);
-    const event = eventResult.rows[0];
+    const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
-    const countResult = await pool.query('SELECT COUNT(*) FROM event_registrations WHERE event_id = $1', [req.params.id]);
-    if (event.seats > 0 && parseInt(countResult.rows[0].count) >= event.seats) {
+    if (event.seats > 0 && event.registrations.length >= event.seats) {
       return res.status(400).json({ error: 'Event is full' });
     }
 
-    await pool.query(
-      'INSERT INTO event_registrations (event_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-      [req.params.id, req.user!.id]
-    );
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    if (!event.registrations.some(r => r.equals(userId))) {
+      event.registrations.push(userId);
+      await event.save();
+    }
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -106,13 +99,10 @@ router.post('/:id/register', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Cancel registration
 router.delete('/:id/register', authenticate, async (req: AuthRequest, res) => {
   try {
-    await pool.query(
-      'DELETE FROM event_registrations WHERE event_id = $1 AND user_id = $2',
-      [req.params.id, req.user!.id]
-    );
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    await Event.findByIdAndUpdate(req.params.id, { $pull: { registrations: userId } });
     res.json({ success: true });
   } catch (error) {
     console.error(error);
@@ -120,14 +110,12 @@ router.delete('/:id/register', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-// Check registration status
 router.get('/:id/registration', authenticate, async (req: AuthRequest, res) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM event_registrations WHERE event_id = $1 AND user_id = $2',
-      [req.params.id, req.user!.id]
-    );
-    res.json({ registered: result.rows.length > 0 });
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
+    const event = await Event.findById(req.params.id);
+    const registered = event ? event.registrations.some(r => r.equals(userId)) : false;
+    res.json({ registered });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
