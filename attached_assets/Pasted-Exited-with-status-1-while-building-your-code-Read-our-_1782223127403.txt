@@ -1,0 +1,112 @@
+Exited with status 1 while building your code.
+Read our docs for common ways to troubleshoot your deploy.
+
+All logs
+Search
+Search logs
+
+Jun 23, 4:53 PM - 4:56 PM
+GMT+3
+
+
+
+==> Cloning from https://github.com/hsvshzvbxj-del/mmt
+==> Checking out commit fe3432680cbc4cfe27df2f1fafe31959323ea770 in branch main
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 698B done
+#1 DONE 0.0s
+#2 [auth] library/node:pull render-prod/docker-mirror-repository/library/node:pull token for us-west1-docker.pkg.dev
+#2 DONE 0.0s
+#3 [internal] load metadata for docker.io/library/node:20-alpine
+#3 DONE 0.5s
+#4 [internal] load .dockerignore
+#4 transferring context: 133B done
+#4 DONE 0.0s
+#5 importing cache manifest
+#5 ERROR: failed to configure registry cache importer: image-registry-v2.aws-us-west-2-7.internal.render.com/srv-d8t5cvmq1p3s7390gutg:buildcache: not found
+#6 [client-builder 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#6 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.0s done
+#6 DONE 0.1s
+#7 [internal] load build context
+#7 transferring context: 2.12MB 0.0s done
+#7 DONE 0.1s
+#6 [client-builder 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#6 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.1s done
+#6 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287
+#6 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 1.8s done
+#6 DONE 2.4s
+#6 [client-builder 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#6 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122
+#6 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122 2.3s done
+#6 DONE 4.7s
+#6 [client-builder 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#6 extracting sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 0.0s done
+#6 DONE 4.7s
+#8 [server-builder 2/6] WORKDIR /app/server
+#8 DONE 0.0s
+#9 [client-builder 2/6] WORKDIR /app/client
+#9 DONE 0.0s
+#10 [production 2/7] WORKDIR /app
+#10 DONE 0.0s
+#11 [server-builder 3/6] COPY server/package*.json ./
+#11 DONE 0.0s
+#12 [client-builder 3/6] COPY client/package*.json ./
+#12 DONE 0.0s
+#13 [client-builder 4/6] RUN npm install
+#13 ...
+#14 [server-builder 4/6] RUN npm install
+#14 71.05 npm notice
+#14 71.05 npm notice New major version of npm available! 10.8.2 -> 11.17.0
+#14 71.05 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+#14 71.05 npm notice To update run: npm install -g npm@11.17.0
+#14 71.05 npm notice
+#14 71.05 npm error Exit handler never called!
+#14 71.05 npm error This is an error with npm itself. Please report this error at:
+#14 71.05 npm error   <https://github.com/npm/cli/issues>
+#14 71.05 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T13_54_42_469Z-debug-0.log
+#14 DONE 71.1s
+#15 [server-builder 5/6] COPY server/ .
+#15 DONE 0.0s
+#16 [server-builder 6/6] RUN npm run build
+#16 0.233 
+#16 0.233 > mic-server@1.0.0 build
+#16 0.233 > tsc
+#16 0.233 
+#16 0.237 sh: tsc: not found
+#16 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+#13 [client-builder 4/6] RUN npm install
+#13 71.27 npm notice
+#13 71.27 npm notice New major version of npm available! 10.8.2 -> 11.17.0
+#13 71.27 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+#13 71.27 npm notice To update run: npm install -g npm@11.17.0
+#13 71.27 npm notice
+#13 71.27 npm error Exit handler never called!
+#13 71.27 npm error This is an error with npm itself. Please report this error at:
+#13 71.27 npm error   <https://github.com/npm/cli/issues>
+#13 71.27 npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-23T13_54_42_465Z-debug-0.log
+#13 DONE 71.3s
+#17 [client-builder 5/6] COPY client/ .
+#17 DONE 0.1s
+#18 [client-builder 6/6] RUN npm run build
+#18 CANCELED
+------
+ > importing cache manifest
+------
+------
+ > [server-builder 6/6] RUN npm run build:
+0.233 
+0.233 > mic-server@1.0.0 build
+0.233 > tsc
+0.233 
+0.237 sh: tsc: not found
+------
+Dockerfile:13
+--------------------
+  11 |     RUN npm install
+  12 |     COPY server/ .
+  13 | >>> RUN npm run build
+  14 |     
+  15 |     FROM node:20-alpine AS production
+--------------------
+error: failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
+error: exit status 1

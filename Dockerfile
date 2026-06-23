@@ -1,5 +1,6 @@
 FROM node:20-alpine AS client-builder
 WORKDIR /app/client
+RUN npm install -g npm@11
 COPY client/package*.json ./
 RUN npm install
 COPY client/ .
@@ -7,6 +8,7 @@ RUN npm run build
 
 FROM node:20-alpine AS server-builder
 WORKDIR /app/server
+RUN npm install -g npm@11
 COPY server/package*.json ./
 RUN npm install
 COPY server/ .
@@ -14,6 +16,7 @@ RUN npm run build
 
 FROM node:20-alpine AS production
 WORKDIR /app
+RUN npm install -g npm@11
 COPY --from=server-builder /app/server/dist ./dist
 COPY --from=server-builder /app/server/package.json ./package.json
 COPY --from=server-builder /app/server/package-lock.json ./package-lock.json
