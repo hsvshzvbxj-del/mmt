@@ -1,0 +1,26 @@
+FROM node:20-alpine AS client-builder
+WORKDIR /app/client
+COPY client/package*.json ./
+RUN npm install
+COPY client/ .
+RUN npm run build
+
+FROM node:20-alpine AS server-builder
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm install
+COPY server/ .
+RUN npm run build
+
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY --from=server-builder /app/server/dist ./dist
+COPY --from=server-builder /app/server/node_modules ./node_modules
+COPY --from=server-builder /app/server/package.json ./package.json
+COPY --from=server-builder /app/server/src/db/schema.sql ./dist/db/schema.sql
+COPY --from=client-builder /app/client/dist ./public
+
+ENV NODE_ENV=production
+EXPOSE 3001
+
+CMD ["node", "dist/index.js"]
