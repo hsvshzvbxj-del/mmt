@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import api from '../lib/api';
-import { Users, Calendar, Briefcase, BookOpen, ArrowLeft, Star, Lightbulb, Network, TrendingUp } from 'lucide-react';
+import { Users, Calendar, Briefcase, BookOpen, ArrowLeft, Star, Lightbulb, Network, TrendingUp, CheckCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 function CountUp({ target, duration = 2000 }: { target: number; duration?: number }) {
@@ -10,6 +10,7 @@ function CountUp({ target, duration = 2000 }: { target: number; duration?: numbe
   const started = useRef(false);
 
   useEffect(() => {
+    if (target === 0) return;
     const obs = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !started.current) {
         started.current = true;
@@ -46,63 +47,83 @@ export default function HomePage() {
   return (
     <div className="animate-fade-in">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#0a1526] text-white min-h-[90vh] flex items-center">
+      <section className="relative overflow-hidden bg-[#0a1526] text-white min-h-[92vh] flex items-center">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a1526] via-[#1e3a5f] to-[#0a1526] opacity-90" />
-          <div className="absolute top-20 right-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#060e1a] via-[#1e3a5f] to-[#060e1a] opacity-95" />
+          <div className="absolute top-10 right-10 w-96 h-96 bg-secondary/8 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-primary/15 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-secondary/4 rounded-full blur-3xl" />
+          {/* Decorative grid */}
+          <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
         </div>
 
-        <div className="container mx-auto px-4 py-24 relative z-10">
+        <div className="container mx-auto px-4 py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 text-secondary border border-secondary/30 px-4 py-2 rounded-full text-sm font-medium mb-8 backdrop-blur-sm">
-              <Star className="w-4 h-4 fill-secondary" />
+            <div className="inline-flex items-center gap-2 bg-white/8 text-secondary border border-secondary/25 px-5 py-2.5 rounded-full text-sm font-medium mb-10 backdrop-blur-sm">
+              <Star className="w-3.5 h-3.5 fill-secondary" />
               المجتمع المهني الأول للتسويق في العالم العربي
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6 text-white">
+            <h1 className="text-6xl md:text-8xl font-bold leading-tight mb-6 text-white tracking-tight">
               مجتمع
-              <span className="text-secondary block mt-2">مبادرة تسويقية</span>
+              <span className="text-secondary block mt-1">مبادرة تسويقية</span>
             </h1>
 
-            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-              بيئة مهنية تجمع قادة التسويق والمستشارين ورواد الأعمال لتبادل المعرفة وبناء الشراكات وخلق فرص نوعية في العالم العربي.
+            <p className="text-xl text-white/65 max-w-2xl mx-auto mb-12 leading-loose">
+              بيئة مهنية حصرية تجمع قادة التسويق والمستشارين ورواد الأعمال لتبادل المعرفة وبناء الشراكات وخلق فرص نوعية في العالم العربي.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/join" className="bg-secondary text-[#0a1526] px-8 py-4 rounded-lg text-lg font-bold hover:bg-secondary/90 transition-all shadow-lg hover:shadow-secondary/20 hover:-translate-y-0.5">
+              <Link href="/join" className="bg-secondary text-[#0a1526] px-10 py-4 rounded-xl text-lg font-bold hover:bg-secondary/90 transition-all shadow-xl hover:shadow-secondary/20 hover:-translate-y-1">
                 انضم إلى المجتمع
               </Link>
-              <Link href="/about" className="border border-white/30 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white/10 transition-all backdrop-blur-sm">
+              <Link href="/about" className="border border-white/25 text-white px-10 py-4 rounded-xl text-lg font-medium hover:bg-white/8 transition-all backdrop-blur-sm hover:-translate-y-1">
                 تعرف علينا
               </Link>
+            </div>
+
+            {/* Trust badges */}
+            <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-white/35 text-sm">
+              {[
+                { icon: CheckCircle, text: 'عضوية مدروسة وحصرية' },
+                { icon: CheckCircle, text: 'خبراء من كل دول العالم العربي' },
+                { icon: CheckCircle, text: 'فرص مهنية حقيقية' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-2">
+                  <Icon className="w-4 h-4 text-secondary/60" />
+                  <span>{text}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 text-sm animate-bounce">
-          <div className="w-px h-8 bg-white/20" />
-          اكتشف المزيد
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 text-xs">
+          <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/20" />
+          <span>اكتشف المزيد</span>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="bg-primary text-white py-16">
-        <div className="container mx-auto px-4">
+      <section className="bg-primary text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(232,165,184,0.3) 0%, transparent 60%), radial-gradient(circle at 80% 50%, rgba(30,58,95,0.5) 0%, transparent 60%)'}} />
+        <div className="container mx-auto px-4 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Users, label: 'عضو نشط', value: stats?.members || 0 },
-              { icon: Calendar, label: 'فعالية', value: stats?.events || 0 },
-              { icon: Briefcase, label: 'فرصة متاحة', value: stats?.opportunities || 0 },
-              { icon: BookOpen, label: 'مقال ومورد', value: stats?.articles || 0 },
+              { icon: Users, label: 'عضو نشط', value: stats?.members ?? 0 },
+              { icon: Calendar, label: 'فعالية مهنية', value: stats?.events ?? 0 },
+              { icon: Briefcase, label: 'فرصة متاحة', value: stats?.opportunities ?? 0 },
+              { icon: BookOpen, label: 'مقال ومورد', value: stats?.articles ?? 0 },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="text-center group">
-                <Icon className="w-8 h-8 text-secondary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <div className="text-4xl md:text-5xl font-bold mb-1 text-white">
-                  <CountUp target={value} />+
+                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-secondary/20 transition-colors">
+                  <Icon className="w-7 h-7 text-secondary" />
                 </div>
-                <div className="text-white/70 text-sm">{label}</div>
+                <div className="text-4xl md:text-5xl font-bold mb-1 text-white flex items-center justify-center gap-0.5">
+                  <CountUp target={value} />
+                  {value > 0 && <span className="text-secondary">+</span>}
+                </div>
+                <div className="text-white/60 text-sm font-medium">{label}</div>
               </div>
             ))}
           </div>
@@ -110,12 +131,13 @@ export default function HomePage() {
       </section>
 
       {/* Community Pillars */}
-      <section className="py-24 bg-background">
+      <section className="py-28 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">ركائز المجتمع</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              نبني مجتمعاً متكاملاً يقدم لأعضائه ثلاثة محاور رئيسية
+            <div className="inline-block bg-primary/8 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-4">ماذا نقدم</div>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-5">ركائز المجتمع</h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+              نبني مجتمعاً متكاملاً يقدم لأعضائه ثلاثة محاور رئيسية تصنع الفارق
             </p>
           </div>
 
@@ -124,34 +146,41 @@ export default function HomePage() {
               {
                 icon: Lightbulb,
                 title: 'المعرفة',
+                description: 'محتوى تسويقي متخصص وجلسات حصرية مع خبراء الصناعة',
                 color: 'bg-blue-50 text-blue-600',
-                borderColor: 'border-blue-200',
-                items: ['ندوات وويبينارات', 'مقالات متخصصة', 'موارد ومراجع', 'تسجيلات الفعاليات'],
+                iconBg: 'bg-blue-100',
+                borderColor: 'border-blue-100 hover:border-blue-300',
+                items: ['ندوات وويبينارات متخصصة', 'مقالات من قادة الصناعة', 'موارد ومراجع احترافية', 'تسجيلات الفعاليات الحية'],
               },
               {
                 icon: Network,
                 title: 'التواصل',
-                color: 'bg-pink-50 text-pink-600',
-                borderColor: 'border-pink-200',
-                items: ['شبكة مهنية موسعة', 'فرص تعاون', 'لقاءات دورية', 'دليل الأعضاء'],
+                description: 'شبكة علاقات مهنية مع نخبة المسوقين والمستشارين في العالم العربي',
+                color: 'bg-rose-50 text-rose-600',
+                iconBg: 'bg-rose-100',
+                borderColor: 'border-rose-100 hover:border-rose-300',
+                items: ['دليل أعضاء تفاعلي', 'فرص تعاون ومشاريع مشتركة', 'لقاءات دورية حضورية وإلكترونية', 'مجموعات اهتمام متخصصة'],
               },
               {
                 icon: TrendingUp,
                 title: 'الفرص',
-                color: 'bg-green-50 text-green-600',
-                borderColor: 'border-green-200',
-                items: ['وظائف تسويقية', 'مشاريع استشارية', 'شراكات تجارية', 'مشاريع مستقلة'],
+                description: 'فرص وظيفية واستشارية وشراكات تجارية حصرية للأعضاء',
+                color: 'bg-emerald-50 text-emerald-600',
+                iconBg: 'bg-emerald-100',
+                borderColor: 'border-emerald-100 hover:border-emerald-300',
+                items: ['وظائف تسويقية مختارة', 'مشاريع استشارية', 'شراكات تجارية استراتيجية', 'مشاريع مستقلة وفريلانس'],
               },
-            ].map(({ icon: Icon, title, color, borderColor, items }) => (
-              <div key={title} className={`bg-white rounded-2xl p-8 border-2 ${borderColor} hover:shadow-lg transition-all hover:-translate-y-1 group`}>
-                <div className={`w-14 h-14 rounded-xl ${color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-7 h-7" />
+            ].map(({ icon: Icon, title, description, color, iconBg, borderColor, items }) => (
+              <div key={title} className={`bg-white rounded-2xl p-8 border-2 ${borderColor} hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group`}>
+                <div className={`w-14 h-14 rounded-2xl ${iconBg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                  <Icon className={`w-7 h-7 ${color.split(' ')[1]}`} />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-foreground">{title}</h3>
-                <ul className="space-y-2">
+                <h3 className="text-2xl font-bold mb-2 text-foreground">{title}</h3>
+                <p className="text-muted-foreground text-sm mb-5 leading-relaxed">{description}</p>
+                <ul className="space-y-2.5">
                   {items.map(item => (
-                    <li key={item} className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                    <li key={item} className="flex items-center gap-2.5 text-muted-foreground text-sm">
+                      <div className={`w-1.5 h-1.5 rounded-full ${color.split(' ')[1].replace('text-', 'bg-')} shrink-0`} />
                       {item}
                     </li>
                   ))}
@@ -164,14 +193,15 @@ export default function HomePage() {
 
       {/* Upcoming Events */}
       {upcomingEvents.length > 0 && (
-        <section className="py-24 bg-muted/30">
+        <section className="py-28 bg-muted/20">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-end justify-between mb-12">
               <div>
-                <h2 className="text-4xl font-bold text-foreground mb-2">الفعاليات القادمة</h2>
-                <p className="text-muted-foreground">لا تفوت أحدث فعاليات المجتمع</p>
+                <div className="inline-block bg-primary/8 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-4">على الرادار</div>
+                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-2">الفعاليات القادمة</h2>
+                <p className="text-muted-foreground">لا تفوت أحدث فعاليات مجتمع مبادرة تسويقية</p>
               </div>
-              <Link href="/events" className="hidden md:flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all">
+              <Link href="/events" className="hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all border border-primary/20 px-5 py-2.5 rounded-xl hover:bg-primary/5">
                 جميع الفعاليات <ArrowLeft className="w-4 h-4" />
               </Link>
             </div>
@@ -179,21 +209,27 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {upcomingEvents.map((event: any) => (
                 <Link key={event.id} href={`/events/${event.id}`}>
-                  <div className="bg-white rounded-xl border hover:shadow-md transition-all hover:-translate-y-1 overflow-hidden group">
-                    <div className="bg-gradient-to-br from-primary to-primary/80 h-48 flex items-center justify-center p-6">
-                      <div className="text-center text-white">
-                        <Calendar className="w-10 h-10 mb-3 mx-auto opacity-80" />
-                        <div className="text-2xl font-bold">{new Date(event.event_date).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' })}</div>
-                        <div className="text-white/70 text-sm mt-1">{new Date(event.event_date).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div className="bg-white rounded-2xl border hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden group cursor-pointer">
+                    <div className="bg-gradient-to-br from-[#0a1526] to-[#1e3a5f] h-48 flex items-center justify-center p-6 relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(232,165,184,0.4), transparent 60%)'}} />
+                      <div className="text-center text-white relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                          <Calendar className="w-6 h-6" />
+                        </div>
+                        <div className="text-2xl font-bold">{new Date(event.event_date).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' })}</div>
+                        <div className="text-white/60 text-sm mt-1">{new Date(event.event_date).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     </div>
                     <div className="p-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        {event.is_online && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">أونلاين</span>}
-                        {event.seats > 0 && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{event.seats} مقعد</span>}
+                      <div className="flex items-center gap-2 mb-3">
+                        {event.is_online
+                          ? <span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">أونلاين</span>
+                          : <span className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium">حضوري</span>
+                        }
+                        {event.seats > 0 && <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">{event.seats} مقعد</span>}
                       </div>
-                      <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                      <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors leading-snug">{event.title}</h3>
+                      {event.description && <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{event.description}</p>}
                     </div>
                   </div>
                 </Link>
@@ -201,7 +237,7 @@ export default function HomePage() {
             </div>
 
             <div className="text-center mt-8 md:hidden">
-              <Link href="/events" className="inline-flex items-center gap-2 text-primary font-medium border border-primary px-6 py-2.5 rounded-lg hover:bg-primary/5">
+              <Link href="/events" className="inline-flex items-center gap-2 text-primary font-medium border border-primary/30 px-6 py-2.5 rounded-xl hover:bg-primary/5">
                 جميع الفعاليات <ArrowLeft className="w-4 h-4" />
               </Link>
             </div>
@@ -210,14 +246,17 @@ export default function HomePage() {
       )}
 
       {/* CTA */}
-      <section className="py-24 bg-gradient-to-br from-[#0a1526] via-[#1e3a5f] to-[#0a1526] text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-28 bg-gradient-to-br from-[#060e1a] via-[#1e3a5f] to-[#060e1a] text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-secondary/10 rounded-full blur-3xl" />
+        <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-4xl font-bold mb-6">جاهز للانضمام؟</h2>
-            <p className="text-white/70 text-lg mb-10 leading-relaxed">
-              كن جزءاً من مجتمع يضم نخبة المسوقين والمستشارين ورواد الأعمال في العالم العربي. تقدم بطلبك اليوم.
+            <div className="inline-block bg-secondary/15 text-secondary text-sm font-medium px-4 py-1.5 rounded-full mb-6">انضم اليوم</div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">جاهز لتكون جزءاً من<br />مجتمع يصنع الفارق؟</h2>
+            <p className="text-white/60 text-lg mb-10 leading-loose max-w-xl mx-auto">
+              انضم إلى نخبة المسوقين والمستشارين ورواد الأعمال في العالم العربي. قدّم طلبك اليوم وانتظر قرار القبول.
             </p>
-            <Link href="/join" className="inline-block bg-secondary text-[#0a1526] px-10 py-4 rounded-lg text-lg font-bold hover:bg-secondary/90 transition-all shadow-lg hover:-translate-y-0.5">
+            <Link href="/join" className="inline-block bg-secondary text-[#0a1526] px-12 py-4 rounded-xl text-lg font-bold hover:bg-secondary/90 transition-all shadow-xl hover:shadow-secondary/20 hover:-translate-y-1">
               تقدم بطلب العضوية
             </Link>
           </div>
