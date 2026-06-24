@@ -32,7 +32,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full glass border-b border-border/50 transition-all duration-300">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <img src="/logo.png" alt="مجتمع مبادرة تسويقية" className="h-12 w-auto group-hover:opacity-90 transition-opacity" />
+          <img src="/logo.png" alt="مجتمع مبادرة تسويقية" className="h-14 w-auto group-hover:opacity-90 transition-opacity drop-shadow-sm" />
         </Link>
 
         {/* Desktop Nav */}

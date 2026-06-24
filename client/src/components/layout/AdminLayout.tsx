@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`fixed inset-y-0 right-0 z-50 w-64 bg-[#0a1526] text-white flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <Link href="/">
-            <img src="/logo.png" alt="MIC" className="h-10 w-auto brightness-0 invert" />
+            <img src="/logo.png" alt="MIC" className="h-10 w-auto drop-shadow-md" />
           </Link>
           <button className="md:hidden text-white/70 hover:text-white" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />

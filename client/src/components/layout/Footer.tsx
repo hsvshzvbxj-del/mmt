@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-1">
             <Link href="/" className="inline-block mb-6">
-              <img src="/logo.png" alt="مجتمع مبادرة تسويقية" className="h-16 w-auto brightness-0 invert" />
+              <img src="/logo.png" alt="مجتمع مبادرة تسويقية" className="h-16 w-auto drop-shadow-lg" />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               شبكة مهنية رائدة لقادة التسويق والمستشارين ورواد الأعمال في العالم العربي. نهدف إلى تبادل المعرفة وبناء الشراكات وخلق فرص نوعية.
