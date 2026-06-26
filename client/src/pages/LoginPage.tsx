@@ -72,23 +72,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* بيانات الدخول */}
-          <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm space-y-2">
-            <p className="font-semibold text-primary mb-3 flex items-center gap-2">
-              <span>🔑</span> بيانات الدخول التجريبية
-            </p>
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center py-1.5 px-3 rounded-lg bg-background/60">
-                <span className="text-muted-foreground text-xs">مدير النظام</span>
-                <span className="font-mono text-xs text-foreground ltr" dir="ltr">admin@micommunity.com / Admin@1234</span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 px-3 rounded-lg bg-background/60">
-                <span className="text-muted-foreground text-xs">عضو</span>
-                <span className="font-mono text-xs text-foreground ltr" dir="ltr">sara@example.com / Member@1234</span>
-              </div>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">البريد الإلكتروني</label>
