@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { Bell, BellOff, CheckCircle, X } from 'lucide-react';
 import api from '../../lib/api';
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-  return outputArray;
+  return outputArray.buffer;
 }
 
 type Status = 'idle' | 'subscribed' | 'denied' | 'loading' | 'unsupported';

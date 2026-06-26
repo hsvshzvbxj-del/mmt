@@ -1,137 +1,263 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import { ChatMessage } from '../models/ChatMessage';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { User } from '../models/User';
+import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// GET /api/chat?room=general&before=<timestamp>&limit=50
+function fmtMsg(msg: any, userId: string, userRole: string) {
+  const o = msg.toObject ? msg.toObject() : msg;
+  const isAdmin = ['admin', 'moderator'].includes(userRole);
+  return {
+    id: o._id.toString(),
+    content: o.content,
+    room: o.room,
+    type: o.type || 'text',
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
+    replyToId: o.replyToId?.toString() || null,
+    readBy: (o.readBy || []).map((r: any) => ({
+      userId: r.userId?._id?.toString() || r.userId?.toString(),
+      name: r.userId?.name || '',
+      readAt: r.readAt,
+    })),
+    reactions: (o.reactions || []).map((r: any) => ({
+      userId: r.userId?._id?.toString() || r.userId?.toString(),
+      emoji: r.emoji,
+    })),
+    visibleTo: o.visibleTo?.length ? o.visibleTo.map((id: any) => id.toString()) : null,
+    isAdmin,
+    author: {
+      id: o.authorId?._id?.toString() || o.authorId?.toString(),
+      name: o.authorId?.name || '',
+      avatarUrl: o.authorId?.avatarUrl || null,
+      specialization: o.authorId?.specialization || '',
+      role: o.authorId?.role || 'member',
+    },
+  };
+}
+
+function buildVisibilityFilter(userId: string, userRole: string) {
+  if (['admin', 'moderator'].includes(userRole)) return {};
+  return {
+    $or: [
+      { visibleTo: { $exists: false } },
+      { visibleTo: { $size: 0 } },
+      { visibleTo: new mongoose.Types.ObjectId(userId) },
+      { authorId: new mongoose.Types.ObjectId(userId) },
+    ],
+  };
+}
+
+// GET /api/chat — load messages
 router.get('/', authenticate, async (req: AuthRequest, res) => {
   try {
-    const room = (req.query.room as string) || 'general';
-    const limit = Math.min(parseInt((req.query.limit as string) || '50'), 100);
-    const before = req.query.before ? new Date(req.query.before as string) : undefined;
+    const { room = 'general', limit = 60, before } = req.query;
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+    const isAdmin = ['admin', 'moderator'].includes(userRole);
 
-    const filter: any = { room };
-    if (before) filter.createdAt = { $lt: before };
+    const query: any = { room };
+    if (before) query.createdAt = { $lt: new Date(before as string) };
+    if (!isAdmin) query.isDeleted = false;
+    Object.assign(query, buildVisibilityFilter(userId, userRole));
 
-    const messages = await ChatMessage.find(filter)
+    const msgs = await ChatMessage.find(query)
       .populate('authorId', 'name avatarUrl specialization role')
+      .populate('readBy.userId', 'name avatarUrl')
       .sort({ createdAt: -1 })
-      .limit(limit);
+      .limit(Number(limit))
+      .lean();
 
-    // Return in chronological order
-    const result = messages.reverse().map(m => ({
-      _id: m._id,
-      id: m._id.toString(),
-      content: m.content,
-      room: m.room,
-      createdAt: m.createdAt,
-      author: {
-        id: (m.authorId as any)?._id?.toString(),
-        name: (m.authorId as any)?.name,
-        avatarUrl: (m.authorId as any)?.avatarUrl,
-        specialization: (m.authorId as any)?.specialization,
-        role: (m.authorId as any)?.role,
-      },
-    }));
+    msgs.reverse();
 
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Mark all as read by current user
+    const idsToMark = msgs
+      .filter((m: any) => !m.readBy?.some((r: any) => r.userId?.toString() === userId))
+      .map((m: any) => m._id);
+
+    if (idsToMark.length > 0) {
+      await ChatMessage.updateMany(
+        { _id: { $in: idsToMark } },
+        { $push: { readBy: { userId: new mongoose.Types.ObjectId(userId), readAt: new Date() } } }
+      );
+      idsToMark.forEach((id: any) => {
+        const msg = msgs.find((m: any) => m._id.toString() === id.toString());
+        if (msg) (msg as any).readBy.push({ userId: { _id: userId, name: req.user!.name }, readAt: new Date() });
+      });
+    }
+
+    res.json(msgs.map(m => fmtMsg(m, userId, userRole)));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
-// POST /api/chat - send a message
+// GET /api/chat/poll — long-poll for new messages + read updates
+router.get('/poll', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { room = 'general', since } = req.query;
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+    const isAdmin = ['admin', 'moderator'].includes(userRole);
+
+    if (!since) return res.json([]);
+
+    const query: any = {
+      room,
+      $or: [
+        { createdAt: { $gt: new Date(since as string) } },
+        { updatedAt: { $gt: new Date(since as string) } },
+      ],
+    };
+    if (!isAdmin) query.isDeleted = false;
+    Object.assign(query, buildVisibilityFilter(userId, userRole));
+
+    const msgs = await ChatMessage.find(query)
+      .populate('authorId', 'name avatarUrl specialization role')
+      .populate('readBy.userId', 'name avatarUrl')
+      .sort({ createdAt: 1 })
+      .limit(50)
+      .lean();
+
+    // Mark as read
+    const idsToMark = msgs
+      .filter((m: any) => !m.readBy?.some((r: any) => r.userId?.toString() === userId))
+      .map((m: any) => m._id);
+
+    if (idsToMark.length > 0) {
+      await ChatMessage.updateMany(
+        { _id: { $in: idsToMark } },
+        { $push: { readBy: { userId: new mongoose.Types.ObjectId(userId), readAt: new Date() } } }
+      );
+      idsToMark.forEach((id: any) => {
+        const msg = msgs.find((m: any) => m._id.toString() === id.toString());
+        if (msg) (msg as any).readBy.push({ userId: { _id: userId, name: req.user!.name }, readAt: new Date() });
+      });
+    }
+
+    res.json(msgs.map(m => fmtMsg(m, userId, userRole)));
+  } catch (err) {
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// GET /api/chat/members — list members for "visible to" targeting
+router.get('/members', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const members = await User.find({ status: 'active' })
+      .select('name avatarUrl specialization role')
+      .sort({ name: 1 })
+      .lean();
+    res.json(members.map((m: any) => ({ id: m._id.toString(), name: m.name, avatarUrl: m.avatarUrl, specialization: m.specialization, role: m.role })));
+  } catch {
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/chat — send message
 router.post('/', authenticate, async (req: AuthRequest, res) => {
   try {
-    const { content, room = 'general' } = req.body;
-    if (!content || !content.trim()) {
-      return res.status(400).json({ error: 'المحتوى مطلوب' });
-    }
-    if (content.trim().length > 2000) {
-      return res.status(400).json({ error: 'الرسالة طويلة جداً (الحد الأقصى 2000 حرف)' });
-    }
+    const { content, room = 'general', replyToId, visibleTo } = req.body;
+    if (!content?.trim()) return res.status(400).json({ error: 'الرسالة فارغة' });
 
     const msg = await ChatMessage.create({
       content: content.trim(),
-      authorId: req.user!.id,
+      authorId: new mongoose.Types.ObjectId(req.user!.id),
       room,
+      replyToId: replyToId ? new mongoose.Types.ObjectId(replyToId) : undefined,
+      visibleTo: visibleTo?.length ? visibleTo.map((id: string) => new mongoose.Types.ObjectId(id)) : undefined,
+      readBy: [{ userId: new mongoose.Types.ObjectId(req.user!.id), readAt: new Date() }],
     });
 
-    await msg.populate('authorId', 'name avatarUrl specialization role');
+    const populated = await ChatMessage.findById(msg._id)
+      .populate('authorId', 'name avatarUrl specialization role')
+      .populate('readBy.userId', 'name avatarUrl')
+      .lean();
 
-    res.status(201).json({
-      id: msg._id.toString(),
-      content: msg.content,
-      room: msg.room,
-      createdAt: msg.createdAt,
-      author: {
-        id: (msg.authorId as any)?._id?.toString(),
-        name: (msg.authorId as any)?.name,
-        avatarUrl: (msg.authorId as any)?.avatarUrl,
-        specialization: (msg.authorId as any)?.specialization,
-        role: (msg.authorId as any)?.role,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(201).json(fmtMsg(populated, req.user!.id, req.user!.role));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
-// DELETE /api/chat/:id - delete a message (own or admin/mod)
-router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
+// POST /api/chat/:id/react — toggle reaction
+router.post('/:id/react', authenticate, async (req: AuthRequest, res) => {
   try {
+    const { emoji } = req.body;
+    if (!emoji) return res.status(400).json({ error: 'مطلوب emoji' });
+
+    const userId = new mongoose.Types.ObjectId(req.user!.id);
     const msg = await ChatMessage.findById(req.params.id);
     if (!msg) return res.status(404).json({ error: 'الرسالة غير موجودة' });
 
-    const isOwner = msg.authorId.toString() === req.user!.id;
-    const isPrivileged = ['admin', 'moderator'].includes(req.user!.role);
-    if (!isOwner && !isPrivileged) {
-      return res.status(403).json({ error: 'غير مصرح' });
+    const existingIdx = msg.reactions.findIndex(r => r.userId.toString() === req.user!.id && r.emoji === emoji);
+    if (existingIdx >= 0) {
+      msg.reactions.splice(existingIdx, 1);
+    } else {
+      // Remove any previous reaction from this user
+      msg.reactions = msg.reactions.filter(r => r.userId.toString() !== req.user!.id) as any;
+      msg.reactions.push({ userId, emoji } as any);
     }
+    await msg.save();
 
-    await msg.deleteOne();
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    const populated = await ChatMessage.findById(msg._id)
+      .populate('authorId', 'name avatarUrl specialization role')
+      .populate('readBy.userId', 'name avatarUrl')
+      .lean();
+
+    res.json(fmtMsg(populated, req.user!.id, req.user!.role));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
-// GET /api/chat/poll?room=general&since=<timestamp> - long-poll for new messages
-router.get('/poll', authenticate, async (req: AuthRequest, res) => {
+// DELETE /api/chat/:id — ghost delete (admin/mod = silent, owner = own message)
+router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
-    const room = (req.query.room as string) || 'general';
-    const since = req.query.since ? new Date(req.query.since as string) : new Date(Date.now() - 60000);
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+    const isAdmin = ['admin', 'moderator'].includes(userRole);
+    const msg = await ChatMessage.findById(req.params.id);
+    if (!msg) return res.status(404).json({ error: 'الرسالة غير موجودة' });
 
-    const messages = await ChatMessage.find({
-      room,
-      createdAt: { $gt: since },
-    })
-      .populate('authorId', 'name avatarUrl specialization role')
-      .sort({ createdAt: 1 })
-      .limit(50);
+    const isOwner = msg.authorId.toString() === userId;
+    if (!isAdmin && !isOwner) return res.status(403).json({ error: 'غير مصرح' });
 
-    const result = messages.map(m => ({
-      id: m._id.toString(),
-      content: m.content,
-      room: m.room,
-      createdAt: m.createdAt,
-      author: {
-        id: (m.authorId as any)?._id?.toString(),
-        name: (m.authorId as any)?.name,
-        avatarUrl: (m.authorId as any)?.avatarUrl,
-        specialization: (m.authorId as any)?.specialization,
-        role: (m.authorId as any)?.role,
-      },
-    }));
+    // Admins: ghost delete (isDeleted=true, no trace shown to others)
+    // Owners: actual content clear
+    if (isAdmin && !isOwner) {
+      msg.isDeleted = true;
+      msg.deletedAt = new Date();
+      await msg.save();
+      res.json({ id: req.params.id, ghostDeleted: true });
+    } else {
+      await msg.deleteOne();
+      res.json({ id: req.params.id, deleted: true });
+    }
+  } catch {
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
 
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+// POST /api/chat/screenshot — report screenshot attempt
+router.post('/screenshot', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { room } = req.body;
+    // Create a system message visible only to admins/mods
+    await ChatMessage.create({
+      content: `⚠️ تنبيه: المستخدم "${req.user!.name}" أخذ لقطة شاشة في غرفة "${room || 'غير معروفة'}"`,
+      authorId: new mongoose.Types.ObjectId(req.user!.id),
+      room: '__admin__',
+      type: 'system',
+    });
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 

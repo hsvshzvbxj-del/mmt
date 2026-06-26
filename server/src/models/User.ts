@@ -15,6 +15,8 @@ export interface IUser extends Document {
   website?: string;
   skills?: string[];
   avatarUrl?: string;
+  coverUrl?: string;
+  profileTheme?: string;
   role: 'member' | 'moderator' | 'admin';
   status: 'active' | 'suspended' | 'inactive';
   createdAt: Date;
@@ -36,6 +38,8 @@ const UserSchema = new Schema<IUser>({
   website: String,
   skills: [String],
   avatarUrl: String,
+  coverUrl: String,
+  profileTheme: { type: String, default: 'blue' },
   role: { type: String, enum: ['member', 'moderator', 'admin'], default: 'member' },
   status: { type: String, enum: ['active', 'suspended', 'inactive'], default: 'active' },
 }, { timestamps: true });

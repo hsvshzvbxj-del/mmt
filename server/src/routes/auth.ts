@@ -38,10 +38,10 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
 
 router.put('/me', authenticate, async (req: AuthRequest, res) => {
   try {
-    const { name, phone, city, specialization, experience, industry, company, linkedin, bio, website, skills } = req.body;
+    const { name, phone, city, specialization, experience, industry, company, linkedin, bio, website, skills, profileTheme } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user!.id,
-      { name, phone, city, specialization, experience, industry, company, linkedin, bio, website, skills },
+      { name, phone, city, specialization, experience, industry, company, linkedin, bio, website, skills, profileTheme },
       { new: true }
     ).select('-passwordHash');
     res.json(user);

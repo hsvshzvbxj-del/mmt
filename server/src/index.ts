@@ -13,6 +13,7 @@ import articlesRoutes from './routes/articles';
 import adminRoutes from './routes/admin';
 import chatRoutes from './routes/chat';
 import pushRoutes from './routes/push';
+import uploadRoutes from './routes/upload';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/articles', articlesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV || 'development' });
