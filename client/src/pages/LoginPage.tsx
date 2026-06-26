@@ -14,7 +14,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   if (isAuthenticated) {
-    setLocation('/');
+    const { user } = useAuth.getState();
+    setLocation(user?.role === 'admin' || user?.role === 'moderator' ? '/admin' : '/');
     return null;
   }
 
@@ -24,7 +25,8 @@ export default function LoginPage() {
     try {
       await login(email, password);
       toast('مرحباً بك! تم تسجيل الدخول بنجاح', 'success');
-      setLocation('/');
+      const { user } = useAuth.getState();
+      setLocation(user?.role === 'admin' || user?.role === 'moderator' ? '/admin' : '/');
     } catch {
       toast('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
     } finally {

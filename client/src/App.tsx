@@ -55,18 +55,56 @@ export default function App() {
         <Route path="/join" component={JoinPage} />
 
         {/* Admin routes */}
-        <Route path="/admin/:rest*">
+        <Route path="/admin">
           {() => (
             <AdminLayout>
               <Suspense fallback={<PageLoader />}>
-                <Switch>
-                  <Route path="/admin" component={() => <PrivateRoute component={AdminDashboard} roles={['admin', 'moderator']} />} />
-                  <Route path="/admin/members" component={() => <PrivateRoute component={AdminMembers} roles={['admin', 'moderator']} />} />
-                  <Route path="/admin/applications" component={() => <PrivateRoute component={AdminApplications} roles={['admin', 'moderator']} />} />
-                  <Route path="/admin/events" component={() => <PrivateRoute component={AdminEvents} roles={['admin', 'moderator']} />} />
-                  <Route path="/admin/opportunities" component={() => <PrivateRoute component={AdminOpportunities} roles={['admin', 'moderator']} />} />
-                  <Route path="/admin/articles" component={() => <PrivateRoute component={AdminArticles} roles={['admin', 'moderator']} />} />
-                </Switch>
+                <PrivateRoute component={AdminDashboard} roles={['admin', 'moderator']} />
+              </Suspense>
+            </AdminLayout>
+          )}
+        </Route>
+        <Route path="/admin/members">
+          {() => (
+            <AdminLayout>
+              <Suspense fallback={<PageLoader />}>
+                <PrivateRoute component={AdminMembers} roles={['admin', 'moderator']} />
+              </Suspense>
+            </AdminLayout>
+          )}
+        </Route>
+        <Route path="/admin/applications">
+          {() => (
+            <AdminLayout>
+              <Suspense fallback={<PageLoader />}>
+                <PrivateRoute component={AdminApplications} roles={['admin', 'moderator']} />
+              </Suspense>
+            </AdminLayout>
+          )}
+        </Route>
+        <Route path="/admin/events">
+          {() => (
+            <AdminLayout>
+              <Suspense fallback={<PageLoader />}>
+                <PrivateRoute component={AdminEvents} roles={['admin', 'moderator']} />
+              </Suspense>
+            </AdminLayout>
+          )}
+        </Route>
+        <Route path="/admin/opportunities">
+          {() => (
+            <AdminLayout>
+              <Suspense fallback={<PageLoader />}>
+                <PrivateRoute component={AdminOpportunities} roles={['admin', 'moderator']} />
+              </Suspense>
+            </AdminLayout>
+          )}
+        </Route>
+        <Route path="/admin/articles">
+          {() => (
+            <AdminLayout>
+              <Suspense fallback={<PageLoader />}>
+                <PrivateRoute component={AdminArticles} roles={['admin', 'moderator']} />
               </Suspense>
             </AdminLayout>
           )}
