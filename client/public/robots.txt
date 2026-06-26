@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /events
+Allow: /knowledge
+Allow: /join
+Allow: /contact
+
+Disallow: /admin
+Disallow: /profile
+Disallow: /api/
+
+Sitemap: https://mmt-community.site/sitemap.xml

@@ -42,7 +42,7 @@ export default function HomePage() {
     queryFn: () => api.get('/events').then(r => r.data),
   });
 
-  const upcomingEvents = events?.filter((e: any) => new Date(e.event_date) > new Date()).slice(0, 3) || [];
+  const upcomingEvents = events?.filter((e: any) => new Date(e.eventDate) > new Date()).slice(0, 3) || [];
 
   return (
     <div className="animate-fade-in">
@@ -216,13 +216,13 @@ export default function HomePage() {
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                           <Calendar className="w-6 h-6" />
                         </div>
-                        <div className="text-2xl font-bold">{new Date(event.event_date).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' })}</div>
-                        <div className="text-white/60 text-sm mt-1">{new Date(event.event_date).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className="text-2xl font-bold">{new Date(event.eventDate).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' })}</div>
+                        <div className="text-white/60 text-sm mt-1">{new Date(event.eventDate).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-3">
-                        {event.is_online
+                        {event.isOnline
                           ? <span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">أونلاين</span>
                           : <span className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium">حضوري</span>
                         }

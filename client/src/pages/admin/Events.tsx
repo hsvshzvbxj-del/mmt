@@ -37,7 +37,7 @@ export default function AdminEvents() {
 
   const openEdit = (e: any) => {
     setEditId(e.id);
-    setForm({ ...e, event_date: e.event_date?.slice(0, 16) });
+    setForm({ ...e, event_date: e.eventDate?.slice(0, 16) });
     setShowModal(true);
   };
 
@@ -114,9 +114,9 @@ export default function AdminEvents() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium text-foreground truncate">{e.title}</h3>
-                  {e.is_online && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full shrink-0">أونلاين</span>}
+                  {e.isOnline && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full shrink-0">أونلاين</span>}
                 </div>
-                <div className="text-sm text-muted-foreground">{formatDateTime(e.event_date)} · {e.registered_count}/{e.seats || '∞'} مشارك</div>
+                <div className="text-sm text-muted-foreground">{formatDateTime(e.eventDate)} · {e.registered_count}/{e.seats || '∞'} مشارك</div>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => openEdit(e)} className="w-8 h-8 rounded bg-blue-100 text-blue-700 flex items-center justify-center hover:bg-blue-200 transition-colors"><Edit className="w-4 h-4" /></button>

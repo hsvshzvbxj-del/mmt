@@ -57,3 +57,10 @@ externalPort = 5000
 [[ports]]
 localPort = 5001
 externalPort = 3001
+
+[userenv]
+
+[userenv.shared]
+VAPID_PRIVATE_KEY = "Yp0_NZ2_deAXEClhho_pzeLZ7FYrnM8ry1vQwuNE79U"
+VAPID_PUBLIC_KEY = "BOy2dgbob-DUUHi3uaSSFzmYLuGqwk4MGvkC6TYAEpvcrNxybEChnwl0mefJTZFPrSLpjmSB-e29b6Z9X90H7aI"
+VAPID_SUBJECT = "mailto:admin@mmt-community.site"

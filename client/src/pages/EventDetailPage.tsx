@@ -57,7 +57,7 @@ export default function EventDetailPage() {
     </div>
   );
 
-  const isPast = new Date(event.event_date) < new Date();
+  const isPast = new Date(event.eventDate) < new Date();
   const isFull = event.seats > 0 && parseInt(event.registered_count) >= event.seats;
   const isRegistered = regStatus?.registered;
 
@@ -73,7 +73,7 @@ export default function EventDetailPage() {
         <div className="p-8">
           <div className="flex items-start justify-between gap-4 mb-6">
             <h1 className="text-3xl font-bold text-foreground leading-snug">{event.title}</h1>
-            {event.is_online ? (
+            {event.isOnline ? (
               <span className="shrink-0 text-sm bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full flex items-center gap-1.5">
                 <Video className="w-4 h-4" /> أونلاين
               </span>
@@ -86,7 +86,7 @@ export default function EventDetailPage() {
             <div className="bg-muted/30 rounded-xl p-4">
               <Clock className="w-4 h-4 text-primary mb-2" />
               <div className="text-xs text-muted-foreground mb-1">التاريخ والوقت</div>
-              <div className="font-medium text-foreground text-sm">{formatDateTime(event.event_date)}</div>
+              <div className="font-medium text-foreground text-sm">{formatDateTime(event.eventDate)}</div>
             </div>
             {event.location && (
               <div className="bg-muted/30 rounded-xl p-4">
@@ -118,10 +118,10 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          {event.zoom_link && isRegistered && (
+          {event.zoomLink && isRegistered && (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
               <p className="text-sm text-blue-700 mb-2 font-medium">رابط الانضمام (Zoom)</p>
-              <a href={event.zoom_link} target="_blank" rel="noopener noreferrer"
+              <a href={event.zoomLink} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
                 <ExternalLink className="w-4 h-4" /> انضم للاجتماع
               </a>

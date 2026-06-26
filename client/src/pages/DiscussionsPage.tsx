@@ -195,7 +195,7 @@ export default function DiscussionsPage() {
                         {d.author_specialization && (
                           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{d.author_specialization}</span>
                         )}
-                        <span className="text-xs text-muted-foreground mr-auto">{timeAgo(d.created_at)}</span>
+                        <span className="text-xs text-muted-foreground mr-auto">{timeAgo(d.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function DiscussionsPage() {
                       className={`flex items-center gap-1.5 text-sm transition-colors ${d.is_liked ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-400'}`}
                     >
                       <Heart className={`w-4 h-4 ${d.is_liked ? 'fill-rose-500' : ''}`} />
-                      <span className="font-medium">{d.likes_count}</span>
+                      <span className="font-medium">{d.likesCount}</span>
                     </button>
                     <Link href={`/discussions/${d.id}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
                       <MessageSquare className="w-4 h-4" />

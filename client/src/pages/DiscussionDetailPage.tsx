@@ -80,7 +80,7 @@ export default function DiscussionDetailPage() {
             <div>
               <div className="font-bold text-foreground">{discussion.author_name}</div>
               {discussion.author_specialization && <div className="text-sm text-muted-foreground">{discussion.author_specialization}</div>}
-              <div className="text-xs text-muted-foreground mt-1">{timeAgo(discussion.created_at)}</div>
+              <div className="text-xs text-muted-foreground mt-1">{timeAgo(discussion.createdAt)}</div>
             </div>
           </div>
 
@@ -100,7 +100,7 @@ export default function DiscussionDetailPage() {
           <div className="flex items-center gap-4 pt-6 border-t">
             <button onClick={() => like.mutate()} className={`flex items-center gap-1.5 text-sm transition-colors ${discussion.is_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'}`}>
               <Heart className={`w-5 h-5 ${discussion.is_liked ? 'fill-red-500' : ''}`} />
-              {discussion.likes_count} إعجاب
+              {discussion.likesCount} إعجاب
             </button>
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <MessageSquare className="w-5 h-5" />
@@ -129,7 +129,7 @@ export default function DiscussionDetailPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium text-sm text-foreground">{c.author_name}</span>
-                  <span className="text-xs text-muted-foreground mr-auto">{timeAgo(c.created_at)}</span>
+                  <span className="text-xs text-muted-foreground mr-auto">{timeAgo(c.createdAt)}</span>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">{c.content}</p>
               </div>

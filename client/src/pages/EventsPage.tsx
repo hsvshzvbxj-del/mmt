@@ -13,8 +13,8 @@ export default function EventsPage() {
   });
 
   const now = new Date();
-  const upcoming = events?.filter((e: any) => new Date(e.event_date) >= now) || [];
-  const past = events?.filter((e: any) => new Date(e.event_date) < now) || [];
+  const upcoming = events?.filter((e: any) => new Date(e.eventDate) >= now) || [];
+  const past = events?.filter((e: any) => new Date(e.eventDate) < now) || [];
 
   return (
     <div className="animate-fade-in">
@@ -102,7 +102,7 @@ function EventCard({ event, isAuthenticated, past }: { event: any; isAuthenticat
         <div className="p-6">
           <div className="flex items-start justify-between gap-3 mb-4">
             <h3 className="font-bold text-foreground group-hover:text-primary transition-colors leading-snug text-lg">{event.title}</h3>
-            {event.is_online ? (
+            {event.isOnline ? (
               <span className="shrink-0 text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
                 <Video className="w-3 h-3" /> أونلاين
               </span>
@@ -120,7 +120,7 @@ function EventCard({ event, isAuthenticated, past }: { event: any; isAuthenticat
               <div className="w-7 h-7 rounded-lg bg-primary/8 flex items-center justify-center shrink-0">
                 <Clock className="w-3.5 h-3.5 text-primary" />
               </div>
-              {formatDateTime(event.event_date)}
+              {formatDateTime(event.eventDate)}
             </div>
             {event.location && (
               <div className="flex items-center gap-2.5">

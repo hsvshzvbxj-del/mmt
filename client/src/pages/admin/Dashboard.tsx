@@ -101,7 +101,7 @@ export default function AdminDashboard() {
                       <div className="font-medium text-sm text-foreground truncate">{m.name}</div>
                       <div className="text-xs text-muted-foreground truncate">{m.city} · {m.specialization}</div>
                     </div>
-                    <div className="text-xs text-muted-foreground shrink-0 bg-muted/50 px-2 py-1 rounded-lg">{formatDate(m.created_at)}</div>
+                    <div className="text-xs text-muted-foreground shrink-0 bg-muted/50 px-2 py-1 rounded-lg">{formatDate(m.createdAt)}</div>
                   </div>
                 ))
             }
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                 : data?.recentApplications?.map((app: any) => (
                   <div key={app.id} className="p-4 hover:bg-muted/20 transition-colors">
                     <div className="flex items-center justify-between mb-1">
-                      <div className="font-medium text-sm text-foreground">{app.full_name}</div>
+                      <div className="font-medium text-sm text-foreground">{app.fullName}</div>
                       <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${statusBadge(app.status)}`}>
                         {statusLabel(app.status)}
                       </span>

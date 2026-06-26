@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
@@ -7,15 +7,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1e3a5f" />
     <link rel="manifest" href="/manifest.json" />
-    <title>مجتمع مبادرة تسويقية | Marketing Initiative Community</title>
-    <meta name="description" content="A professional community for marketing leaders, specialists, consultants, entrepreneurs, and business owners in the Arab world." />
+
+    <!-- Primary SEO -->
+    <title>مجتمع مبادرة تسويقية | المجتمع المهني الأول للتسويق في العالم العربي</title>
+    <meta name="description" content="مجتمع مبادرة تسويقية – المنصة المهنية الحصرية التي تجمع قادة التسويق والمستشارين ورواد الأعمال في العالم العربي. تبادل المعرفة، بناء الشراكات، وخلق فرص نوعية." />
+    <meta name="keywords" content="مجتمع مبادرة تسويقية, مجتمع تسويقي, تسويق عربي, مسوقون عرب, مجتمع مهني عربي, marketing community, Arab marketing, التسويق الرقمي, مبادرة تسويقية" />
+    <meta name="author" content="مجتمع مبادرة تسويقية" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://mmt-community.site/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mmt-community.site/" />
+    <meta property="og:title" content="مجتمع مبادرة تسويقية | المجتمع المهني الأول للتسويق في العالم العربي" />
+    <meta property="og:description" content="منصة مهنية حصرية تجمع قادة التسويق والمستشارين ورواد الأعمال في العالم العربي. انضم اليوم." />
+    <meta property="og:image" content="https://mmt-community.site/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:site_name" content="مجتمع مبادرة تسويقية" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://mmt-community.site/" />
+    <meta name="twitter:title" content="مجتمع مبادرة تسويقية" />
+    <meta name="twitter:description" content="المجتمع المهني الأول للتسويق في العالم العربي" />
+    <meta name="twitter:image" content="https://mmt-community.site/og-image.png" />
+
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="MIC" />
-    <meta property="og:title" content="مجتمع مبادرة تسويقية" />
-    <meta property="og:description" content="Professional community for marketing leaders in the Arab world" />
-    <meta property="og:image" content="/logo.png" />
-    <meta property="og:type" content="website" />
+    <meta name="apple-mobile-web-app-title" content="مبادرة تسويقية" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "مجتمع مبادرة تسويقية",
+      "alternateName": "MMT Community",
+      "url": "https://mmt-community.site",
+      "logo": "https://mmt-community.site/logo.png",
+      "description": "المجتمع المهني الأول للتسويق في العالم العربي",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "Arabic"
+      },
+      "sameAs": []
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "مجتمع مبادرة تسويقية",
+      "url": "https://mmt-community.site",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://mmt-community.site/members?name={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Performance: Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
@@ -23,7 +83,9 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => { console.log('SW registered', reg.scope); })
+            .catch((err) => { console.warn('SW registration failed', err); });
         });
       }
     </script>

@@ -72,7 +72,7 @@ export default function AdminApplications() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-bold text-foreground">{app.full_name}</h3>
+                      <h3 className="font-bold text-foreground">{app.fullName}</h3>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         app.status === 'pending' ? 'bg-orange-100 text-orange-700' :
                         app.status === 'approved' ? 'bg-green-100 text-green-700' :
@@ -82,7 +82,7 @@ export default function AdminApplications() {
                       </span>
                     </div>
                     <div className="text-sm text-muted-foreground">{app.email} · {app.city} · {app.specialization}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{formatDate(app.created_at)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatDate(app.createdAt)}</div>
                   </div>
                   <button onClick={() => setExpanded(expanded === app.id ? null : app.id)}
                     className="text-muted-foreground hover:text-foreground transition-colors">
