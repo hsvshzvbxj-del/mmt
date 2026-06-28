@@ -1,2 +1,3 @@
-- [MIC Platform Architecture](mic-platform.md) — Full-stack Arabic marketing community: React+Vite port 5000, Express port 3001, PostgreSQL seeded on startup.
+- [MIC Platform Architecture](mic-platform.md) — Full-stack Arabic marketing community: React+Vite port 5000, Express port 3001, MongoDB/Mongoose (MONGODB_URI secret).
 - [MIC Route Ordering Fix](mic-route-ordering.md) — Express members router: /admin/all and /admin/:id must come BEFORE /:id to avoid param collision.
+- [MIC Advanced Features](mic-advanced-features.md) — 9-role system, ban/mute system, private messaging, onboarding flow, moderation center — all built; toast uses toast(msg, type) not {title,variant}.

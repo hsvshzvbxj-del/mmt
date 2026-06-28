@@ -6,7 +6,13 @@ interface User {
   name: string;
   email: string;
   role: string;
+  avatarUrl?: string;
   avatar_url?: string;
+  onboarding?: {
+    completed: boolean;
+    step: number;
+  };
+  [key: string]: any;
 }
 
 interface AuthState {

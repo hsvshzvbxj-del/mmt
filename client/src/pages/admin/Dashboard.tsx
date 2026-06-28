@@ -1,148 +1,185 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import api from '../../lib/api';
-import { Users, UserPlus, ClipboardList, Calendar, Briefcase, MessageSquare, BookOpen, ArrowLeft, TrendingUp } from 'lucide-react';
-import { formatDate } from '../../lib/utils';
-import { Link } from 'wouter';
 
-export default function AdminDashboard() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-dashboard'],
-    queryFn: () => api.get('/admin/dashboard').then(r => r.data),
-  });
-
-  const stats = [
-    { icon: Users, label: 'إجمالي الأعضاء', value: data?.stats.totalMembers, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-    { icon: UserPlus, label: 'أعضاء جدد (30 يوم)', value: data?.stats.newMembers, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-    { icon: ClipboardList, label: 'طلبات معلقة', value: data?.stats.pendingApplications, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
-    { icon: Calendar, label: 'الفعاليات', value: data?.stats.totalEvents, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
-    { icon: Briefcase, label: 'الفرص', value: data?.stats.totalOpportunities, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
-    { icon: MessageSquare, label: 'النقاشات', value: data?.stats.totalDiscussions, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100' },
-    { icon: BookOpen, label: 'المقالات', value: data?.stats.totalArticles, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
-  ];
-
-  const statusBadge = (status: string) => {
-    if (status === 'pending') return 'bg-orange-100 text-orange-700 border border-orange-200';
-    if (status === 'approved') return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-    return 'bg-red-100 text-red-700 border border-red-200';
+interface DashboardData {
+  stats: {
+    totalMembers: number; newMembers: number; weeklyMembers: number;
+    pendingApplications: number; approvedApplications: number; rejectedApplications: number;
+    totalEvents: number; totalOpportunities: number; totalDiscussions: number; totalArticles: number;
+    totalBanned: number; totalMuted: number; totalSuspended: number; pendingReports: number;
   };
+  growthByMonth: { month: string; count: number }[];
+  recentMembers: any[];
+  recentApplications: any[];
+  recentActivity: any[];
+}
 
-  const statusLabel = (status: string) => {
-    if (status === 'pending') return 'معلق';
-    if (status === 'approved') return 'مقبول';
-    return 'مرفوض';
-  };
+function StatCard({ title, value, sub, color, icon }: { title: string; value: number; sub?: string; color: string; icon: string }) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center text-2xl shrink-0`}>{icon}</div>
+      <div>
+        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-2xl font-bold text-gray-900">{value?.toLocaleString('ar') ?? 0}</p>
+        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  'user.login': 'تسجيل دخول', 'user.logout': 'تسجيل خروج', 'user.ban': 'حظر مستخدم',
+  'user.unban': 'رفع حظر', 'user.mute': 'كتم مستخدم', 'user.unmute': 'رفع كتم',
+  'user.role_change': 'تغيير الدور', 'user.update': 'تحديث الملف', 'user.delete': 'حذف مستخدم',
+  'member.approve': 'قبول عضوية', 'member.reject': 'رفض عضوية',
+  'event.create': 'إنشاء فعالية', 'event.delete': 'حذف فعالية',
+  'discussion.create': 'نقاش جديد', 'discussion.delete': 'حذف نقاش',
+  'article.create': 'مقال جديد', 'report.create': 'بلاغ جديد',
+  'onboarding.complete': 'إكمال التهيئة',
+};
+
+export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/admin/dashboard').then(r => setData(r.data)).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-gray-400">جاري تحميل لوحة التحكم...</p>
+      </div>
+    </div>
+  );
+
+  if (!data) return <div className="p-6 text-red-500">خطأ في تحميل البيانات</div>;
+
+  const { stats, growthByMonth, recentMembers, recentApplications, recentActivity } = data;
+  const maxGrowth = Math.max(...(growthByMonth || []).map(m => m.count), 1);
 
   return (
-    <div className="animate-fade-in space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">لوحة التحكم</h2>
-          <p className="text-muted-foreground text-sm mt-1">نظرة عامة على نشاط مجتمع مبادرة تسويقية</p>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-2xl font-bold text-primary">لوحة التحكم</h1>
+        <p className="text-sm text-gray-400">{new Date().toLocaleDateString('ar', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </div>
+
+      {/* Main stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="الأعضاء النشطون" value={stats.totalMembers} sub={`+${stats.weeklyMembers} هذا الأسبوع`} color="bg-blue-50" icon="👥" />
+        <StatCard title="أعضاء جدد (30 يوم)" value={stats.newMembers} color="bg-green-50" icon="🌱" />
+        <StatCard title="طلبات معلقة" value={stats.pendingApplications} color="bg-amber-50" icon="📋" />
+        <StatCard title="بلاغات معلقة" value={stats.pendingReports} color="bg-red-50" icon="🚨" />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="الفعاليات" value={stats.totalEvents} color="bg-purple-50" icon="🗓️" />
+        <StatCard title="الفرص" value={stats.totalOpportunities} color="bg-indigo-50" icon="💼" />
+        <StatCard title="النقاشات" value={stats.totalDiscussions} color="bg-teal-50" icon="💬" />
+        <StatCard title="المقالات" value={stats.totalArticles} color="bg-rose-50" icon="📝" />
+      </div>
+
+      {/* Moderation overview */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-red-50 rounded-2xl p-4 text-center">
+          <p className="text-3xl font-bold text-red-600">{stats.totalBanned}</p>
+          <p className="text-sm text-red-500 mt-1">محظورون</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-          <TrendingUp className="w-3.5 h-3.5" />
-          آخر تحديث: الآن
+        <div className="bg-amber-50 rounded-2xl p-4 text-center">
+          <p className="text-3xl font-bold text-amber-600">{stats.totalMuted}</p>
+          <p className="text-sm text-amber-500 mt-1">مكتومون</p>
+        </div>
+        <div className="bg-orange-50 rounded-2xl p-4 text-center">
+          <p className="text-3xl font-bold text-orange-600">{stats.totalSuspended}</p>
+          <p className="text-sm text-orange-500 mt-1">موقوفون</p>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map(({ icon: Icon, label, value, color, bg, border }) => (
-          <div key={label} className={`bg-white rounded-2xl border ${border} p-5 hover:shadow-md transition-all hover:-translate-y-0.5`}>
-            <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center mb-4`}>
-              <Icon className={`w-5 h-5 ${color}`} />
+      {/* Growth chart */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <h2 className="font-bold text-gray-800 mb-4">نمو الأعضاء (آخر 6 أشهر)</h2>
+        <div className="flex items-end gap-3 h-32">
+          {(growthByMonth || []).map(m => (
+            <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
+              <span className="text-xs text-gray-500 font-medium">{m.count}</span>
+              <div
+                className="w-full bg-primary/80 rounded-t-lg transition-all"
+                style={{ height: `${(m.count / maxGrowth) * 100}%`, minHeight: m.count > 0 ? '4px' : '0' }}
+              />
+              <span className="text-[10px] text-gray-400 text-center">{m.month}</span>
             </div>
-            <div className="text-3xl font-bold text-foreground mb-1">
-              {isLoading
-                ? <div className="h-8 w-12 bg-gray-100 rounded-lg animate-pulse" />
-                : (value ?? 0)
-              }
-            </div>
-            <div className="text-xs text-muted-foreground font-medium">{label}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Members */}
-        <div className="bg-white rounded-2xl border overflow-hidden">
-          <div className="p-5 border-b flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                <Users className="w-4 h-4 text-blue-600" />
-              </div>
-              <h3 className="font-bold text-foreground">آخر الأعضاء</h3>
-            </div>
-            <Link href="/admin/members" className="text-xs text-primary hover:underline flex items-center gap-1">
-              عرض الكل <ArrowLeft className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="divide-y">
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="p-4 flex items-center gap-3 animate-pulse">
-                  <div className="w-9 h-9 bg-gray-100 rounded-xl shrink-0" />
-                  <div className="flex-1">
-                    <div className="h-3.5 bg-gray-100 rounded-lg mb-2 w-1/2" />
-                    <div className="h-3 bg-gray-50 rounded-lg w-1/3" />
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent members */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <h2 className="font-bold text-gray-800 mb-4">آخر الأعضاء</h2>
+          <div className="space-y-3">
+            {(recentMembers || []).map((m: any) => (
+              <div key={m._id} className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
+                  {m.name?.[0]}
                 </div>
-              ))
-              : data?.recentMembers?.length === 0
-                ? <div className="p-8 text-center text-muted-foreground text-sm">لا يوجد أعضاء بعد</div>
-                : data?.recentMembers?.map((m: any) => (
-                  <div key={m.id} className="p-4 flex items-center gap-3 hover:bg-muted/20 transition-colors">
-                    <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-                      {m.name?.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-foreground truncate">{m.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{m.city} · {m.specialization}</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground shrink-0 bg-muted/50 px-2 py-1 rounded-lg">{formatDate(m.createdAt)}</div>
-                  </div>
-                ))
-            }
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{m.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{m.specialization || m.email}</p>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                  ['admin', 'super_admin'].includes(m.role) ? 'bg-red-100 text-red-600' :
+                  ['moderator', 'senior_moderator'].includes(m.role) ? 'bg-purple-100 text-purple-600' :
+                  'bg-green-100 text-green-600'
+                }`}>{m.role}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Recent Applications */}
-        <div className="bg-white rounded-2xl border overflow-hidden">
-          <div className="p-5 border-b flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                <ClipboardList className="w-4 h-4 text-orange-600" />
-              </div>
-              <h3 className="font-bold text-foreground">آخر الطلبات</h3>
-            </div>
-            <Link href="/admin/applications" className="text-xs text-primary hover:underline flex items-center gap-1">
-              عرض الكل <ArrowLeft className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="divide-y">
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="p-4 animate-pulse">
-                  <div className="h-3.5 bg-gray-100 rounded-lg mb-2 w-1/2" />
-                  <div className="h-3 bg-gray-50 rounded-lg w-1/3" />
+        {/* Recent applications */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <h2 className="font-bold text-gray-800 mb-4">آخر الطلبات</h2>
+          <div className="space-y-3">
+            {(recentApplications || []).map((a: any) => (
+              <div key={a._id} className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                  {a.fullName?.[0]}
                 </div>
-              ))
-              : data?.recentApplications?.length === 0
-                ? <div className="p-8 text-center text-muted-foreground text-sm">لا توجد طلبات بعد</div>
-                : data?.recentApplications?.map((app: any) => (
-                  <div key={app.id} className="p-4 hover:bg-muted/20 transition-colors">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="font-medium text-sm text-foreground">{app.fullName}</div>
-                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${statusBadge(app.status)}`}>
-                        {statusLabel(app.status)}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">{app.email} · {app.city}</div>
-                  </div>
-                ))
-            }
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{a.fullName}</p>
+                  <p className="text-xs text-gray-400 truncate">{a.specialization || a.city}</p>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                  a.status === 'approved' ? 'bg-green-100 text-green-600' :
+                  a.status === 'rejected' ? 'bg-red-100 text-red-600' :
+                  'bg-amber-100 text-amber-600'
+                }`}>{a.status === 'pending' ? 'معلق' : a.status === 'approved' ? 'مقبول' : 'مرفوض'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent activity */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <h2 className="font-bold text-gray-800 mb-4">سجل الأنشطة الأخيرة</h2>
+          <div className="space-y-3">
+            {(recentActivity || []).map((log: any) => (
+              <div key={log._id} className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm">
+                    <span className="font-medium">{log.performedBy?.name}</span>{' '}
+                    <span className="text-gray-500">{ACTION_LABELS[log.action] || log.action}</span>
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {new Date(log.createdAt).toLocaleString('ar', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
