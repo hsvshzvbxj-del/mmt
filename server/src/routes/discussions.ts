@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Discussion } from '../models/Discussion';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import { notify } from '../lib/notify';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -100,6 +101,17 @@ router.post('/:id/like', authenticate, async (req: AuthRequest, res) => {
       discussion.likes.push(userId);
       discussion.likesCount += 1;
       await discussion.save();
+      // إشعار صاحب النقاش
+      notify({
+        userId: discussion.authorId,
+        type: 'like',
+        title: 'أُعجب شخص بنقاشك',
+        body: `أعجبه نقاشك: "${discussion.title}"`,
+        link: `/discussions/${discussion._id}`,
+        triggeredBy: req.user!.id,
+        resourceId: String(discussion._id),
+        resourceType: 'discussion',
+      });
       res.json({ liked: true });
     }
   } catch (error) {
@@ -141,6 +153,17 @@ router.post('/:id/comments', authenticate, async (req: AuthRequest, res) => {
     const comment = { authorId: new mongoose.Types.ObjectId(req.user!.id), content } as any;
     discussion.comments.push(comment);
     await discussion.save();
+    // إشعار صاحب النقاش بوجود تعليق جديد
+    notify({
+      userId: discussion.authorId,
+      type: 'reply',
+      title: 'تعليق جديد على نقاشك',
+      body: `"${content.slice(0, 80)}${content.length > 80 ? '...' : ''}"`,
+      link: `/discussions/${discussion._id}`,
+      triggeredBy: req.user!.id,
+      resourceId: String(discussion._id),
+      resourceType: 'discussion',
+    });
     res.status(201).json(discussion.comments[discussion.comments.length - 1]);
   } catch (error) {
     console.error(error);

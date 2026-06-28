@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { MembershipRequest } from '../models/MembershipRequest';
 import { User } from '../models/User';
 import { authenticate, requireRole } from '../middleware/auth';
+import { notify } from '../lib/notify';
 
 const router = Router();
 
@@ -125,7 +126,17 @@ router.put('/:id', authenticate, requireRole('admin', 'moderator'), async (req, 
           role: 'member',
           status: 'active',
         });
-        // TODO: Send welcome email with temp password
+        // إشعار ترحيب للعضو الجديد
+        const newUser = await User.findOne({ email: application.email });
+        if (newUser) {
+          notify({
+            userId: String(newUser._id),
+            type: 'welcome',
+            title: '🎉 أهلاً بك في مجتمع مبادرة تسويقية!',
+            body: 'تمت الموافقة على طلب انضمامك. ابدأ الآن بتعبئة ملفك الشخصي واكتشاف المجتمع.',
+            link: '/profile',
+          });
+        }
         console.log(`✅ New member created: ${application.email} | Temp Password: ${tempPassword}`);
       }
     }

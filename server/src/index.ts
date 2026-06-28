@@ -22,6 +22,7 @@ import banRoutes from './routes/ban';
 import messagesRoutes from './routes/messages';
 import reportsRoutes from './routes/reports';
 import auditlogRoutes from './routes/auditlog';
+import notificationsRoutes from './routes/notifications';
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use('/api/ban', banRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/audit', auditlogRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: process.env.NODE_ENV || 'development' });
