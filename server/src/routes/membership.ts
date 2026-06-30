@@ -5,6 +5,7 @@ import { MembershipRequest } from '../models/MembershipRequest';
 import { User } from '../models/User';
 import { authenticate, requireRole } from '../middleware/auth';
 import { notify } from '../lib/notify';
+import { sendNewApplicationEmail, sendApplicationApprovedEmail, sendApplicationRejectedEmail } from '../lib/email';
 
 const router = Router();
 
@@ -74,6 +75,17 @@ router.post('/apply', async (req, res) => {
       linkedin: linkedin?.trim(),
     });
 
+    // إشعار الأدمن عبر البريد
+    const admins = await User.find({
+      role: { $in: ['super_admin', 'admin', 'moderator', 'senior_moderator'] },
+      notificationEmail: { $exists: true, $ne: '' },
+    }).select('notificationEmail').lean();
+    for (const admin of admins) {
+      if (admin.notificationEmail) {
+        sendNewApplicationEmail(admin.notificationEmail, fullName.trim(), email.trim()).catch(() => {});
+      }
+    }
+
     res.status(201).json({ success: true, id: request._id });
   } catch (error) {
     console.error(error);
@@ -137,8 +149,14 @@ router.put('/:id', authenticate, requireRole('admin', 'moderator'), async (req, 
             link: '/profile',
           });
         }
+        // إرسال بريد القبول للمتقدم
+        sendApplicationApprovedEmail(application.email, application.fullName).catch(() => {});
         console.log(`✅ New member created: ${application.email} | Temp Password: ${tempPassword}`);
       }
+    }
+
+    if (status === 'rejected') {
+      sendApplicationRejectedEmail(application.email, application.fullName).catch(() => {});
     }
 
     res.json({ success: true, status });

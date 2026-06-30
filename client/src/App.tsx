@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import Layout from './components/layout/Layout';
 import AdminLayout from './components/layout/AdminLayout';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
+import AdminEmailModal from './components/AdminEmailModal';
 import api from './lib/api';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -34,6 +35,7 @@ const AdminModeration = lazy(() => import('./pages/admin/Moderation'));
 const AdminAuditLog = lazy(() => import('./pages/admin/AuditLog'));
 
 const ADMIN_ROLES = ['super_admin', 'admin', 'moderator', 'senior_moderator', 'editor', 'reviewer', 'support'];
+const ADMIN_EMAIL_ROLES = ['super_admin', 'admin', 'moderator', 'senior_moderator'];
 
 function PageLoader() {
   return (
@@ -56,21 +58,24 @@ function PrivateRoute({ component: Component, roles, ...rest }: any) {
 function OnboardingGate() {
   const { user, isAuthenticated, setUser } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showAdminEmail, setShowAdminEmail] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
-    // Refresh user data to check onboarding status
     api.get('/auth/me').then(res => {
       const freshUser = res.data;
       setUser(freshUser);
       if (freshUser.onboarding && !freshUser.onboarding.completed) {
         setShowOnboarding(true);
+      } else if (ADMIN_EMAIL_ROLES.includes(freshUser.role) && !freshUser.notificationEmail) {
+        setShowAdminEmail(true);
       }
     }).catch(() => {});
   }, [isAuthenticated]);
 
-  if (!showOnboarding) return null;
-  return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
+  if (showOnboarding) return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
+  if (showAdminEmail) return <AdminEmailModal onClose={() => setShowAdminEmail(false)} />;
+  return null;
 }
 
 export default function App() {

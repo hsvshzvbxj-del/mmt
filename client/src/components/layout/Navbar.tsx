@@ -38,12 +38,16 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full glass border-b border-border/50 transition-all duration-300">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group shrink-0">
+        <Link href="/" className="flex items-center gap-2 group shrink-0">
           <img
             src="/logo.png"
             alt="مجتمع مبادرة تسويقية"
-            className="h-14 w-auto group-hover:opacity-90 transition-opacity drop-shadow-sm"
+            className="h-12 w-auto group-hover:opacity-90 transition-opacity drop-shadow-sm"
           />
+          <div className="hidden sm:flex flex-col leading-tight">
+            <span className="text-sm font-bold text-[#1e3a5f] leading-tight">مجتمع</span>
+            <span className="text-xs font-semibold text-rose-400 leading-tight">مبادرة تسويقية</span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}

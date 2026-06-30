@@ -69,7 +69,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
 router.put('/me', authenticate, async (req: AuthRequest, res) => {
   try {
     const allowed = ['name', 'phone', 'city', 'country', 'language', 'specialization', 'experience',
-      'industry', 'company', 'linkedin', 'bio', 'website', 'skills', 'interests', 'profileTheme'];
+      'industry', 'company', 'linkedin', 'bio', 'website', 'skills', 'interests', 'profileTheme', 'notificationEmail'];
     const update: any = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) update[key] = req.body[key];
